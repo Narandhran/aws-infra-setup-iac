@@ -1,0 +1,122 @@
+variable "region" {
+  description = "AWS region to deploy resources"
+  type        = string
+}
+
+variable "env" {
+  description = "Environment name (e.g., dev, prod)"
+  type        = string
+}
+
+# VPC Variables
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+}
+
+variable "public_subnets" {
+  description = "List of CIDR blocks for public subnets"
+  type        = list(string)
+}
+
+variable "private_subnets" {
+  description = "List of CIDR blocks for private subnets"
+  type        = list(string)
+}
+
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+}
+
+# ECS Variables
+variable "ec2_ami" {
+  description = "AMI ID for ECS EC2 instances"
+  type        = string
+}
+
+variable "instance_type" {
+  description = "Instance type for ECS EC2 instances"
+  type        = string
+}
+
+variable "ecs_min_size" {
+  description = "Minimum number of ECS instances"
+  type        = number
+}
+
+variable "ecs_max_size" {
+  description = "Maximum number of ECS instances"
+  type        = number
+}
+
+# RDS Variables
+variable "db_instance_class" {
+  description = "RDS instance class"
+  type        = string
+}
+
+variable "db_allocated_storage" {
+  description = "Allocated storage for RDS (GB)"
+  type        = number
+}
+
+variable "db_name" {
+  description = "Name of the RDS database"
+  type        = string
+}
+
+variable "db_username" {
+  description = "Master username for the RDS database"
+  type        = string
+}
+
+variable "db_password" {
+  description = "Master password for the RDS database"
+  type        = string
+}
+
+# Redis Variables
+variable "redis_node_type" {
+  description = "Node type for Redis"
+  type        = string
+}
+
+variable "redis_num_nodes" {
+  description = "Number of Redis nodes"
+  type        = number
+}
+
+# ECR Variables
+variable "ecr_repository_name" {
+  description = "Name of the ECR repository"
+  type        = string
+}
+
+# S3 Variables
+variable "bucket_name" {
+  description = "Name of the S3 bucket"
+  type        = string
+}
+
+variable "versioning" {
+  description = "Enable versioning on the S3 bucket"
+  type        = bool
+  default     = true
+}
+
+# Secrets Manager Variables
+variable "secret_name" {
+  description = "Name of the secret in Secrets Manager"
+  type        = string
+}
+
+variable "secret_value" {
+  description = "Value of the secret in Secrets Manager"
+  type        = string
+}
+
+variable "security_groups" {
+  description = "Security group IDs for the ALB"
+  type        = list(string)
+}

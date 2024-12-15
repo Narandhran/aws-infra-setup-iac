@@ -1,0 +1,17 @@
+region              = "eu-west-1"
+env                 = "prod"
+vpc_cidr            = "10.1.0.0/16"
+public_subnets      = ["10.1.1.0/24", "10.1.2.0/24", "10.1.3.0/24"]
+private_subnets     = ["10.1.101.0/24", "10.1.102.0/24", "10.1.103.0/24"]
+availability_zones  = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+ec2_ami             = "ami-0abcdef1234567890"
+instance_type       = "t3.medium"
+ecs_min_size        = 3
+ecs_max_size        = 10
+db_instance_class   = "db.t3.medium"
+db_allocated_storage = 50
+db_name             = "proddb"
+db_username         = "admin"
+db_password         = "securepassword123"
+redis_node_type     = "cache.t3.medium"
+redis_num_nodes     = 2

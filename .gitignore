@@ -1,0 +1,6 @@
+envs/dev/main.tf
+# Ignore tf state and lock files
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terrafrom.tfstate.backup
