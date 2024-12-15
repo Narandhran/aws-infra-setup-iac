@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_PROFILE = "${AWS_PROFILE}"
+        GIT_SHORT_SHA = GIT_COMMIT.take(10)
+    }
+
+    stages {
+        stage('Init tf vars') {
+            steps {
+                script {
+                    echo '<======== Jenkins File execution started =========>'
+                    def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
+                    dir("${currentWorkspace}/infra") {
+                        echo '<========== Inside infra ==========>'
+                        // Assuming you have Terraform installed and configured
+                        sh 'terraform init'
+                        sh 'terraform plan -var-file=dev.tfvars -out=dev-tfplan.tfplan'
+                    }
+                }
+            }
+        }
+
+        stage('Copy Plan to S3') {
+            steps {
+                script {
+                    def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
+                    dir("${currentWorkspace}/infra") {
+                        // Replace with your AWS credentials and S3 bucket details
+                        sh 'aws s3 cp dev-tfplan.tfplan s3://bckt-tf-state-b1os/dev/ --profile ${AWS_PROFILE}'
+                        sh 'terraform apply -var-file=dev.tfvars -auto-approve'
+                    }
+                }
+            }
+        }
+    }
+}

@@ -21,3 +21,9 @@ db/schema.rb
 /tmp/*
 !/log/.keep
 !/tmp/.keep
+
+# Ignore tf state and lock files
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+
