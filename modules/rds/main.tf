@@ -38,11 +38,4 @@ resource "aws_security_group" "rds" {
     protocol    = "tcp"
     cidr_blocks = var.ecs_cidr_blocks
   }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = var.ecs_cidr_blocks
-  }
 }

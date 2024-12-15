@@ -3,10 +3,10 @@ variable "env" {
   type        = string
 }
 
-variable "vpc_id" {
-  description = "ID of the VPC where ECS is deployed"
-  type        = string
-}
+# variable "vpc_id" {
+#   description = "ID of the VPC where ECS is deployed"
+#   type        = string
+# }
 
 variable "private_subnets" {
   description = "List of private subnet IDs for ECS tasks"

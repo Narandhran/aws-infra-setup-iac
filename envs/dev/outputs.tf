@@ -1,39 +1,40 @@
-# # VPC Outputs
-# output "vpc_id" {
-#   value       = module.vpc.vpc_id
-#   description = "The ID of the VPC"
-# }
+# VPC Outputs
+output "vpc_id" {
+  value       = module.vpc.vpc_id
+  description = "The ID of the VPC"
+}
 
-# output "public_subnet_ids" {
-#   value       = module.vpc.public_subnet_ids
-#   description = "The IDs of the public subnets"
-# }
+output "public_subnet_ids" {
+  value       = module.vpc.public_subnet_ids
+  description = "The IDs of the public subnets"
+}
 
-# output "private_subnet_ids" {
-#   value       = module.vpc.private_subnet_ids
-#   description = "The IDs of the private subnets"
-# }
+output "private_subnet_ids" {
+  value       = module.vpc.private_subnet_ids
+  description = "The IDs of the private subnets"
+}
 
-# output "vpc_cidr" {
-#   value       = module.vpc.vpc_cidr
-#   description = "The CIDR block of the VPC"
-# }
+output "vpc_cidr" {
+  value       = module.vpc.vpc_cidr
+  description = "The CIDR block of the VPC"
+}
 
-# # ECS Outputs
-# output "ecs_cluster_name" {
-#   value       = aws_ecs_cluster.main.name
-#   description = "The name of the ECS cluster"
-# }
+# ECS Outputs
+output "ecs_cluster_name" {
+  value       = module.ecs.ecs_cluster_name
+  description = "The name of the ECS cluster"
+}
 
-# output "ecs_cluster_arn" {
-#   value       = aws_ecs_cluster.main.arn
-#   description = "The ARN of the ECS cluster"
-# }
+output "ecs_cluster_arn" {
+  value       = module.ecs.ecs_cluster_arn
+  description = "The ARN of the ECS cluster"
+}
 
-# output "autoscaling_group_name" {
-#   value       = aws_autoscaling_group.ecs.name
-#   description = "The name of the ECS Auto Scaling Group"
-# }
+output "autoscaling_group_name" {
+  value       = module.ecs.autoscaling_group_name
+  description = "The name of the ECS Auto Scaling Group"
+}
+
 
 # # RDS Outputs
 # output "rds_instance_id" {
@@ -68,10 +69,10 @@
 #   description = "The DNS name of the Application Load Balancer"
 # }
 
-# output "alb_security_group_id" {
-#   value       = module.alb.security_group_id
-#   description = "The security group ID of the ALB"
-# }
+output "alb_security_group_id" {
+  value       = module.alb.alb_security_group_id
+  description = "The security group ID of the ALB"
+}
 
 # # S3 Outputs
 # output "s3_bucket_name" {

@@ -32,7 +32,7 @@ resource "aws_nat_gateway" "natgw" {
 
 
 resource "aws_subnet" "private" {
-  count             = 3
+  count             = 2
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = element(var.private_subnets, count.index)
   availability_zone = element(var.availability_zones, count.index)
@@ -43,7 +43,7 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_subnet" "public" {
-  count             = 3
+  count             = 2
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = element(var.public_subnets, count.index)
   availability_zone = element(var.availability_zones, count.index)

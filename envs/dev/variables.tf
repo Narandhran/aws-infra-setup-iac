@@ -22,3 +22,24 @@ variable "availability_zones" {
   description = "List of availability zones for subnets"
   type        = list(string)
 }
+
+# ECS Variables
+variable "ec2_ami" {
+  description = "AMI ID for ECS EC2 instances"
+  type        = string
+}
+
+variable "instance_type" {
+  description = "Instance type for ECS EC2 instances"
+  type        = string
+}
+
+variable "ecs_min_size" {
+  description = "Minimum number of ECS instances"
+  type        = number
+}
+
+variable "ecs_max_size" {
+  description = "Maximum number of ECS instances"
+  type        = number
+}
