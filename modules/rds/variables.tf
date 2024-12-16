@@ -8,32 +8,32 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "private_subnets" {
+variable "private_subnet_ids" {
   description = "List of private subnet IDs for RDS"
   type        = list(string)
 }
 
-variable "db_instance_class" {
+variable "instance_class" {
   description = "Instance class for the RDS database"
   type        = string
 }
 
-variable "db_allocated_storage" {
+variable "allocated_storage" {
   description = "Allocated storage for the RDS database in GB"
   type        = number
 }
 
-variable "db_name" {
+variable "name" {
   description = "Name of the RDS database"
   type        = string
 }
 
-variable "db_username" {
+variable "username" {
   description = "Master username for the RDS database"
   type        = string
 }
 
-variable "db_password" {
+variable "password" {
   description = "Master password for the RDS database"
   type        = string
 }

@@ -44,3 +44,26 @@ variable "ecs_max_size" {
   type        = number
 }
 
+variable "instance_class" {
+  description = "Instance class for the RDS database"
+  type        = string
+}
+
+variable "allocated_storage" {
+  description = "Allocated storage for the RDS database in GB"
+  type        = number
+}
+
+variable "name" {
+  description = "Name of the RDS database"
+  type        = string
+}
+
+variable "username" {
+  description = "Master username for the RDS database"
+  type        = string
+}
+
+variable "password" {
+  description = "Master password for the RDS database"
+}

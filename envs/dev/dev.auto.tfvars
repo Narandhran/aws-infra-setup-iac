@@ -11,11 +11,11 @@ instance_type = "t3.medium"
 ecs_min_size  = 0
 ecs_max_size  = 0
 
-# db_instance_class    = "db.t3.micro" # db.m7g.large
-# db_allocated_storage = 20
-# db_name              = "devdb"
-# db_username          = "dev_admin"
-# db_password          = "dev_password123"
+instance_class    = "db.t3.micro" # db.m7g.large
+allocated_storage = 20
+name              = "devdb"
+username          = "dev_admin"
+password          = "dev_password123"
 
 # redis_node_type = "cache.t3.micro"
 # redis_num_nodes = 1
