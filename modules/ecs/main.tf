@@ -2,6 +2,7 @@ resource "aws_ecs_cluster" "main" {
   name = "${var.env}-ecs-cluster"
 }
 
+# IAM Role for ECS Instances
 resource "aws_iam_role" "ecs_instance_role" {
   name = "${var.env}-ecs-instance-role"
 
@@ -19,28 +20,68 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
-resource "aws_iam_instance_profile" "ecs_instance_profile" {
-  name = "${var.env}-ecs-instance-profile"
-  role = aws_iam_role.ecs_instance_role.name
+# Add Policy for ECR Access
+resource "aws_iam_policy" "ecs_ecr_policy" {
+  name        = "${var.env}-ecs-ecr-policy"
+  description = "Policy for ECS instances to pull images from ECR"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
 }
 
+# Attach ECR Policy to ECS Instance Role
+resource "aws_iam_policy_attachment" "ecs_ecr_policy_attachment" {
+  name       = "${var.env}-ecs-ecr-policy-attachment"
+  roles      = [aws_iam_role.ecs_instance_role.name]
+  policy_arn = aws_iam_policy.ecs_ecr_policy.arn
+}
+
+# Attach Default ECS Role Policy
 resource "aws_iam_policy_attachment" "ecs_instance_policy_attachment" {
   name       = "${var.env}-ecs-instance-policy-attachment"
   roles      = [aws_iam_role.ecs_instance_role.name]
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
+# Instance Profile for ECS Instances
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "${var.env}-ecs-instance-profile"
+  role = aws_iam_role.ecs_instance_role.name
+}
 
+# Launch Template for ECS Instances
 resource "aws_launch_template" "ecs" {
   name          = "${var.env}-ecs-launch-template"
   instance_type = var.instance_type
-  image_id = var.ec2_ami
+  image_id      = var.ec2_ami
 
   vpc_security_group_ids = [aws_security_group.ecs.id]
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_instance_profile.name
   }
+
+  user_data = base64encode(<<-EOT
+    #!/bin/bash
+    echo "ECS_CLUSTER=${var.env}-ecs-cluster" > /etc/ecs/ecs.config
+    yum install -y aws-cli ecs-init
+    systemctl enable ecs
+    systemctl start ecs
+  EOT
+  )
 
   tag_specifications {
     resource_type = "instance"
@@ -50,6 +91,7 @@ resource "aws_launch_template" "ecs" {
   }
 }
 
+# ALB Target Groups
 resource "aws_lb_target_group" "ecs_target_group_1" {
   name        = "${var.env}-ecs-tg-1"
   port        = 80
@@ -92,6 +134,7 @@ resource "aws_lb_target_group" "ecs_target_group_2" {
   }
 }
 
+# Auto Scaling Group for ECS Instances
 resource "aws_autoscaling_group" "ecs" {
   desired_capacity    = var.min_size
   min_size            = var.min_size
@@ -105,6 +148,8 @@ resource "aws_autoscaling_group" "ecs" {
   
   target_group_arns = [aws_lb_target_group.ecs_target_group_1.arn, aws_lb_target_group.ecs_target_group_2.arn]
 
+  health_check_grace_period = 300
+
   tag {
     key                 = "Name"
     value               = "${var.env}-ecs-asg"
@@ -112,7 +157,7 @@ resource "aws_autoscaling_group" "ecs" {
   }
 }
 
-
+# ALB Listeners
 resource "aws_lb_listener" "http_listener" {
   load_balancer_arn = var.load_balancer_arn
   port              = 80
@@ -124,23 +169,12 @@ resource "aws_lb_listener" "http_listener" {
   }
 }
 
-# resource "aws_lb_listener" "https_listener" {
-#   load_balancer_arn = var.load_balancer_arn
-#   port              = 443
-#   protocol          = "HTTPS"
-
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.ecs_target_group_2.arn
-#   }
-# }
-
+# Security Group for ECS Instances
 resource "aws_security_group" "ecs" {
   name        = "${var.env}-ecs-sg"
   description = "Security group for ECS tasks and instances"
   vpc_id      = var.vpc_id
 
-  # Ingress: Allow traffic from ALB to ECS
   ingress {
     from_port   = 80
     to_port     = 80
