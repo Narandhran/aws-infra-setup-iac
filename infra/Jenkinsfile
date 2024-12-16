@@ -14,7 +14,7 @@ pipeline {
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
                     dir("${currentWorkspace}/infra") {
                         echo "<========== Downloading Terraform tfvars file ==========>"
-                        sh 'aws s3 cp s3://bckt-tf-state-b1os/dev/dev.tfvars --profile ${AWS_PROFILE}'
+                        sh 'aws s3 cp s3://bckt-tf-state-b1os/dev/dev.tfvars dev.tfvars --profile ${AWS_PROFILE}'
 
                         // Update B1os Image in tfvars
                         sh "sed -i 's|B1osImage = \".*\"|B1osImage = \"${ECR_B1OS_IMAGE_NAME}\"|' ${TF_VARS_ENV}.tfvars"
