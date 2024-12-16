@@ -10,13 +10,28 @@ pipeline {
         stage('Init tf vars') {
             steps {
                 script {
+                    echo "<======== Terraform tfvars download =========>"
+                    def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
+                    dir("${currentWorkspace}/infra") {
+                        echo "<========== Downloading Terraform tfvars file ==========>"
+                        sh 'aws s3 cp s3://bckt-tf-state-b1os/dev/dev.tfvars --profile ${AWS_PROFILE}'
+
+                        // Update B1os Image in tfvars
+                        sh "sed -i 's|B1osImage = \".*\"|B1osImage = \"${ECR_B1OS_IMAGE_NAME}\"|' ${TF_VARS_ENV}.tfvars"
+                    }
+                }
+            }
+        }
+
+        stage('Init') {
+            steps {
+                script {
                     echo '<======== Jenkins File execution started =========>'
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
                     dir("${currentWorkspace}/infra") {
                         echo '<========== Inside infra ==========>'
                         // Assuming you have Terraform installed and configured
-                        sh 'terraform init'
-                        sh 'terraform plan -var-file=dev.tfvars -out=dev-tfplan.tfplan'
+                        sh 'terraform init -reconfigure'
                     }
                 }
             }
@@ -27,9 +42,28 @@ pipeline {
                 script {
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
                     dir("${currentWorkspace}/infra") {
-                        // Replace with your AWS credentials and S3 bucket details
+                        sh 'terraform plan -var-file=dev.tfvars -out=dev-tfplan.tfplan'
                         sh 'aws s3 cp dev-tfplan.tfplan s3://bckt-tf-state-b1os/dev/ --profile ${AWS_PROFILE}'
-                        sh 'terraform apply -var-file=dev.tfvars -auto-approve'
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Action') {
+            steps {
+                script {
+                    echo "<========= Performing Terraform Action =======>"
+                    def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
+                    dir("${currentWorkspace}/infra") {
+                        if (TF_ACTION == 'PLAN') {
+                            echo '<========== Refer Above for plan ==========>'
+                        } else if (TF_ACTION == 'APPLY') {
+                            sh "terraform apply -var-file=dev.tfvars -auto-approve"
+                        } else if (TF_ACTION == 'DESTROY') {
+                            sh "terraform destroy -var-file=dev.tfvars -auto-approve"
+                        } else {
+                            error "Invalid action: '${TF_ACTION}'"
+                        }
                     }
                 }
             }
