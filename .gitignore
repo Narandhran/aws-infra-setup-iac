@@ -3,4 +3,4 @@ envs/dev/main.tf
 .terraform
 .terraform.lock.hcl
 terraform.tfstate
-terrafrom.tfstate.backup
+terraform.tfstate.backup
