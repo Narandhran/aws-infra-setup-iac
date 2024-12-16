@@ -43,3 +43,4 @@ variable "ecs_max_size" {
   description = "Maximum number of ECS instances"
   type        = number
 }
+
