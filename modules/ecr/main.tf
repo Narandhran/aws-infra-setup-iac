@@ -1,4 +1,4 @@
-resource "aws_ecr_repository" "main" {
+resource "aws_ecr_repository" "ecr" {
   name                 = "${var.env}-ecr-repo"
   image_scanning_configuration {
     scan_on_push = true
@@ -11,6 +11,4 @@ resource "aws_ecr_repository" "main" {
   }
 }
 
-output "ecr_repository_url" {
-  value = aws_ecr_repository.main.repository_url
-}
+

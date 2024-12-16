@@ -1,24 +1,24 @@
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs"
+  type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "The VPC ID where the resources will be created"
+  type        = string
+}
+
+variable "ecs_cidr_blocks" {
+  description = "CIDR blocks for ECS security group"
+  type        = list(string)
+}
+
 variable "env" {
   description = "Environment name (e.g., dev, prod)"
   type        = string
 }
 
-variable "vpc_id" {
-  description = "ID of the VPC where Redis is deployed"
+variable "instance_class" {
+  description = "Instance class for Redis (e.g., cache.t3.micro)"
   type        = string
-}
-
-variable "private_subnets" {
-  description = "List of private subnet IDs for Redis"
-  type        = list(string)
-}
-
-variable "redis_node_type" {
-  description = "Node type for Redis"
-  type        = string
-}
-
-variable "redis_num_nodes" {
-  description = "Number of Redis nodes"
-  type        = number
 }
