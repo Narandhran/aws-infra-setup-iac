@@ -3,10 +3,10 @@ variable "env" {
   type        = string
 }
 
-# variable "vpc_id" {
-#   description = "ID of the VPC where ECS is deployed"
-#   type        = string
-# }
+variable "vpc_id" {
+  description = "ID of the VPC where ECS is deployed"
+  type        = string
+}
 
 variable "private_subnets" {
   description = "List of private subnet IDs for ECS tasks"
@@ -31,4 +31,9 @@ variable "min_size" {
 variable "max_size" {
   description = "Maximum number of ECS instances"
   type        = number
+}
+
+variable "alb_security_group_id" {
+  description = "ALB security group id"
+  type = string
 }

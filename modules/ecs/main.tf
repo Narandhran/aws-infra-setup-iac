@@ -39,22 +39,14 @@ resource "aws_autoscaling_group" "ecs" {
 resource "aws_security_group" "ecs" {
   name        = "${var.env}-ecs-sg"
   description = "Security group for ECS tasks and instances"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = var.vpc_id
 
   # Ingress: Allow traffic from ALB to ECS
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    security_groups = [aws_security_group.alb_security_group.id]  # ALB SG ID
-  }
-
-  # Egress: Allow all outbound traffic
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [var.alb_security_group_id]  # ALB SG ID
   }
 
   tags = {
