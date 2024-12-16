@@ -50,6 +50,48 @@ resource "aws_launch_template" "ecs" {
   }
 }
 
+resource "aws_lb_target_group" "ecs_target_group_1" {
+  name        = "${var.env}-ecs-tg-1"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "instance"
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200"
+  }
+
+  tags = {
+    Name = "${var.env}-ecs-tg-1"
+  }
+}
+
+resource "aws_lb_target_group" "ecs_target_group_2" {
+  name        = "${var.env}-ecs-tg-2"
+  port        = 443
+  protocol    = "HTTPS"
+  vpc_id      = var.vpc_id
+  target_type = "instance"
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200"
+  }
+
+  tags = {
+    Name = "${var.env}-ecs-tg-2"
+  }
+}
+
 resource "aws_autoscaling_group" "ecs" {
   desired_capacity    = var.min_size
   min_size            = var.min_size
@@ -60,6 +102,8 @@ resource "aws_autoscaling_group" "ecs" {
     id      = aws_launch_template.ecs.id
     version = "$Latest"
   }
+  
+  target_group_arns = [aws_lb_target_group.ecs_target_group_1.arn, aws_lb_target_group.ecs_target_group_2.arn]
 
   tag {
     key                 = "Name"
@@ -68,6 +112,28 @@ resource "aws_autoscaling_group" "ecs" {
   }
 }
 
+
+resource "aws_lb_listener" "http_listener" {
+  load_balancer_arn = var.load_balancer_arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ecs_target_group_1.arn
+  }
+}
+
+# resource "aws_lb_listener" "https_listener" {
+#   load_balancer_arn = var.load_balancer_arn
+#   port              = 443
+#   protocol          = "HTTPS"
+
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.ecs_target_group_2.arn
+#   }
+# }
 
 resource "aws_security_group" "ecs" {
   name        = "${var.env}-ecs-sg"
