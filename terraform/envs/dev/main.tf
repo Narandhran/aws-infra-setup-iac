@@ -34,7 +34,7 @@ module "ecs" {
   min_size              = var.ecs_min_size
   max_size              = var.ecs_max_size
   ##
-  ecr_image_url = "084296958340.dkr.ecr.eu-west-1.amazonaws.com/dev-ecr-repo:latest" # Replace with your ECR image URI
+  ecr_image_url = "084296958340.dkr.ecr.eu-west-1.amazonaws.com/${var.env}-ecr-repo:latest" # Replace with your ECR image URI
 }
 
 # Call RDS module
