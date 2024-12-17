@@ -30,8 +30,8 @@ pipeline {
                         // Assuming you have Terraform installed and configured
                         sh 'terraform init -reconfigure'
                         sh 'ls'
-                        echo 'Region is :$Region'
-                        echo 'Region with paranthesis is :${Region}' 
+                        echo "Region is : $Region"
+                        echo "Region with paranthesis is : ${Region}" 
                     }
                 }
             }
