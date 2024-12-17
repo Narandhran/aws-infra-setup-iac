@@ -12,3 +12,9 @@ output "autoscaling_group_name" {
   value       = aws_autoscaling_group.ecs.name
   description = "The name of the ECS Auto Scaling Group"
 }
+
+# Output for ALB Target Group ARN
+output "alb_target_group_arn" {
+  value       = aws_lb_target_group.ecs_target_group_1.arn
+  description = "The Target Group ARN for the ALB (if needed for other modules)"
+}

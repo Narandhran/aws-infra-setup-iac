@@ -16,12 +16,6 @@ output "alb_dns_name" {
   description = "The DNS name of the ALB"
 }
 
-# Output for ALB Target Group ARN
-output "alb_target_group_arn" {
-  value       = aws_lb.main.arn
-  description = "The Target Group ARN for the ALB (if needed for other modules)"
-}
-
 # Output for ALB Zone ID
 output "alb_zone_id" {
   value       = aws_lb.main.zone_id
