@@ -1,6 +1,6 @@
-envs/dev/main.tf
 # Ignore tf state and lock files
 .terraform
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
+provider.tf

@@ -6,7 +6,7 @@ public_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
 private_subnets    = ["10.0.101.0/24", "10.0.102.0/24"]
 availability_zones = ["eu-west-1a", "eu-west-1b"]
 
-ec2_ami       = "ami-01c91b58dde35c59c"
+ec2_ami       = "ami-0df30dae7c89ce4d4"
 instance_type = "t3.medium"
 ecs_min_size  = 1
 ecs_max_size  = 2
