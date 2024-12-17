@@ -64,7 +64,7 @@ module "redis" {
   vpc_id             = module.vpc.vpc_id
   ecs_cidr_blocks    = module.vpc.private_subnets_cidr
   env                = var.env
-  instance_class     = "cache.t3.micro" # Adjust instance type as needed
+  instance_class     = var.instance_class # Adjust instance type as needed
 }
 
 
