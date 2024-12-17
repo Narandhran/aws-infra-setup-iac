@@ -12,7 +12,7 @@ pipeline {
                 script {
                     echo "<======== Terraform tfvars download =========>"
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/infra") {
+                    dir("${currentWorkspace}/terraform") {
                         echo "<========== Downloading Terraform tfvars file ==========>"
                         sh 'aws s3 cp s3://bckt-tf-state-b1os/dev/dev.tfvars dev.tfvars --profile ${AWS_PROFILE}'
                     }
@@ -25,22 +25,10 @@ pipeline {
                 script {
                     echo '<======== Jenkins File execution started =========>'
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/infra") {
-                        echo '<========== Inside infra ==========>'
+                    dir("${currentWorkspace}/terraform") {
+                        echo '<========== Inside terraform ==========>'
                         // Assuming you have Terraform installed and configured
                         sh 'terraform init -reconfigure'
-                    }
-                }
-            }
-        }
-
-        stage('Copy Plan to S3') {
-            steps {
-                script {
-                    def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/infra") {
-                        sh 'terraform plan -var-file=dev.tfvars -out=dev-tfplan.tfplan'
-                        sh 'aws s3 cp dev-tfplan.tfplan s3://bckt-tf-state-b1os/dev/ --profile ${AWS_PROFILE}'
                     }
                 }
             }
@@ -51,9 +39,9 @@ pipeline {
                 script {
                     echo "<========= Performing Terraform Action =======>"
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/infra") {
+                    dir("${currentWorkspace}/terraform") {
                         if (TF_ACTION == 'PLAN') {
-                            echo '<========== Refer Above for plan ==========>'
+                            sh 'terraform plan -var-file=dev.tfvars -out=dev-tfplan.tfplan'
                         } else if (TF_ACTION == 'APPLY') {
                             sh "terraform apply -var-file=dev.tfvars -auto-approve"
                         } else if (TF_ACTION == 'DESTROY') {
