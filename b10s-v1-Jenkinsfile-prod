@@ -12,7 +12,7 @@ pipeline {
                 script {
                     echo "<======== Terraform tfvars download =========>"
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/terraform/prod") {
+                    dir("${currentWorkspace}/terraform/envs/prod") {
                         echo "<========== Downloading Terraform tfvars file ==========>"
                         sh 'aws s3 cp s3://bckt-tf-state-b1os/prod/prod.tfvars prod.tfvars --profile ${AWS_PROFILE}'
                     }
@@ -25,7 +25,7 @@ pipeline {
                 script {
                     echo '<======== Jenkins File execution started =========>'
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/terraform/prod") {
+                    dir("${currentWorkspace}/terraform/envs/prod") {
                         echo '<========== Inside terraform ==========>'
                         // Assuming you have Terraform installed and configured
                         sh 'terraform init -reconfigure'
@@ -39,7 +39,7 @@ pipeline {
                 script {
                     echo "<========= Performing Terraform Action =======>"
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/terraform/prod") {
+                    dir("${currentWorkspace}/terraform/envs/prod") {
                         if (TF_ACTION == 'PLAN') {
                             sh 'terraform plan -var-file=prod.tfvars -out=prod-tfplan.tfplan'
                         } else if (TF_ACTION == 'APPLY') {
