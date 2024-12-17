@@ -1,4 +1,4 @@
-region = "eu-west-1"
+# region = "eu-west-1"
 env    = "dev"
 project_name = "b1os-v1"
 
@@ -15,7 +15,7 @@ ecs_max_size  = 2
 instance_class    = "db.t3.micro" # db.m7g.large
 allocated_storage = 20
 db_name           = "devdb"
-username          = "dev_admin"
+username          = "user-admin"
 password          = "dev_password123"
 secret_postgres_cred = "dev/b1osv1/postgres"
 
