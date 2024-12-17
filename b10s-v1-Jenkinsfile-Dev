@@ -29,6 +29,7 @@ pipeline {
                         echo '<========== Inside terraform ==========>'
                         // Assuming you have Terraform installed and configured
                         sh 'terraform init -reconfigure'
+                        sh 'ls'
                     }
                 }
             }
