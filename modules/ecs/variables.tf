@@ -42,3 +42,9 @@ variable "load_balancer_arn" {
   description = "ARN for load balancer"
   type = string
 }
+
+variable "ecr_image_url" {
+  description = "The URL of the ECR image to pull"
+  type        = string
+}
+

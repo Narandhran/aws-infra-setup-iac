@@ -30,6 +30,8 @@ module "ecs" {
   instance_type      = var.instance_type
   min_size           = var.ecs_min_size
   max_size           = var.ecs_max_size
+  ##
+  ecr_image_url     = "084296958340.dkr.ecr.eu-west-1.amazonaws.com/dev-ecr-repo:latest" # Replace with your ECR image URI
 }
 
 # Call RDS module
@@ -74,48 +76,3 @@ module "ecr" {
 #   bucket_name  = "${var.env}-app-bucket" # Provide the bucket name
 # }
 
-
-# resource "aws_ecs_task_definition" "hello_world_task" {
-#   family                   = "${var.env}-hello-world-task"
-#   network_mode             = "bridge"
-#   requires_compatibilities = ["EC2"]
-#   cpu                      = "512"
-#   memory                   = "512"
-
-#   container_definitions = jsonencode([{
-#     name      = "hello-world-container"
-#     image     = "084296958340.dkr.ecr.eu-west-1.amazonaws.com/dev-ecr-repo:latest"
-#     # memory    = 512
-#     essential = true
-#     cpu       = 256
-    
-#     portMappings = [{
-#       containerPort = 80
-#       hostPort      = 0
-#       protocol      = "tcp"
-#     }]
-#   }])
-# }
-
-
-# resource "aws_ecs_service" "hello_world_service" {
-#   name            = "${var.env}-hello-world-service"
-#   cluster         = module.ecs.ecs_cluster_name
-#   task_definition = aws_ecs_task_definition.hello_world_task.arn
-#   desired_count   = 1
-#   launch_type     = "EC2"
-
-#   load_balancer {
-#     # target_group_arn = aws_alb_target_group.main.arn
-#     target_group_arn = module.ecs.alb_target_group_arn
-#     container_name   = "hello-world-container"
-#     container_port   = 80
-#   }
-
-#   deployment_minimum_healthy_percent = 50
-#   deployment_maximum_percent         = 200
-  
-#   lifecycle {
-#     ignore_changes = [desired_count]
-#   }
-# }
