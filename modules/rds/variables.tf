@@ -23,7 +23,7 @@ variable "allocated_storage" {
   type        = number
 }
 
-variable "name" {
+variable "db_name" {
   description = "Name of the RDS database"
   type        = string
 }
@@ -40,5 +40,15 @@ variable "password" {
 
 variable "ecs_cidr_blocks" {
   description = "Allowed CIDR blocks for RDS ingress"
-  default     = ["10.0.0.0/16"]  # Adjust based on your ECS cluster or application CIDR
+  default     = ["10.0.0.0/16"] # Adjust based on your ECS cluster or application CIDR
+}
+
+variable "secret_postgres_cred" {
+  description = "Postgres credentials"
+  type        = string
+}
+
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
 }

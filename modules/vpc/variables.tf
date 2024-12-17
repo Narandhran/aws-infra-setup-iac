@@ -22,3 +22,7 @@ variable "availability_zones" {
   description = "List of availability zones for subnets"
   type        = list(string)
 }
+
+variable "project_name" {
+  description = "Name of the project"
+}

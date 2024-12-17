@@ -1,10 +1,10 @@
 resource "aws_ecs_cluster" "main" {
-  name = "${var.env}-ecs-cluster"
+  name = "${var.env}-${var.project_name}-ecs-cluster"
 }
 
 # IAM Role for ECS Instances
 resource "aws_iam_role" "ecs_instance_role" {
-  name = "${var.env}-ecs-instance-role"
+  name = "${var.env}-${var.project_name}-ecs-instance-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -22,15 +22,15 @@ resource "aws_iam_role" "ecs_instance_role" {
 
 # Add Policy for ECR Access
 resource "aws_iam_policy" "ecs_ecr_policy" {
-  name        = "${var.env}-ecs-ecr-policy"
+  name        = "${var.env}-${var.project_name}-ecs-ecr-policy"
   description = "Policy for ECS instances to pull images from ECR"
 
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "ecr:GetAuthorizationToken",
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
@@ -44,27 +44,27 @@ resource "aws_iam_policy" "ecs_ecr_policy" {
 
 # Attach ECR Policy to ECS Instance Role
 resource "aws_iam_policy_attachment" "ecs_ecr_policy_attachment" {
-  name       = "${var.env}-ecs-ecr-policy-attachment"
+  name       = "${var.env}-${var.project_name}-ecs-ecr-policy-attachment"
   roles      = [aws_iam_role.ecs_instance_role.name]
   policy_arn = aws_iam_policy.ecs_ecr_policy.arn
 }
 
 # Attach Default ECS Role Policy
 resource "aws_iam_policy_attachment" "ecs_instance_policy_attachment" {
-  name       = "${var.env}-ecs-instance-policy-attachment"
+  name       = "${var.env}-${var.project_name}-ecs-instance-policy-attachment"
   roles      = [aws_iam_role.ecs_instance_role.name]
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
 # Instance Profile for ECS Instances
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
-  name = "${var.env}-ecs-instance-profile"
+  name = "${var.env}-${var.project_name}-ecs-instance-profile"
   role = aws_iam_role.ecs_instance_role.name
 }
 
 # Launch Template for ECS Instances
 resource "aws_launch_template" "ecs" {
-  name          = "${var.env}-ecs-launch-template"
+  name          = "${var.env}-${var.project_name}-ecs-launch-template"
   instance_type = var.instance_type
   image_id      = var.ec2_ami
 
@@ -76,7 +76,7 @@ resource "aws_launch_template" "ecs" {
 
   user_data = base64encode(<<-EOT
     #!/bin/bash
-    echo "ECS_CLUSTER=${var.env}-ecs-cluster" > /etc/ecs/ecs.config
+    echo "ECS_CLUSTER=${var.env}-${var.project_name}-ecs-cluster" > /etc/ecs/ecs.config
     yum install -y aws-cli ecs-init
     systemctl enable ecs
     systemctl start ecs
@@ -86,14 +86,14 @@ resource "aws_launch_template" "ecs" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = "${var.env}-ecs-instance"
+      Name = "${var.env}-${var.project_name}-ecs-instance"
     }
   }
 }
 
 # ALB Target Groups
 resource "aws_lb_target_group" "ecs_target_group_1" {
-  name        = "${var.env}-ecs-tg-1"
+  name        = "${var.env}-${var.project_name}-ecs-tg-1"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -109,12 +109,12 @@ resource "aws_lb_target_group" "ecs_target_group_1" {
   }
 
   tags = {
-    Name = "${var.env}-ecs-tg-1"
+    Name = "${var.env}-${var.project_name}-ecs-tg-1"
   }
 }
 
 resource "aws_lb_target_group" "ecs_target_group_2" {
-  name        = "${var.env}-ecs-tg-2"
+  name        = "${var.env}-${var.project_name}-ecs-tg-2"
   port        = 443
   protocol    = "HTTPS"
   vpc_id      = var.vpc_id
@@ -130,7 +130,7 @@ resource "aws_lb_target_group" "ecs_target_group_2" {
   }
 
   tags = {
-    Name = "${var.env}-ecs-tg-2"
+    Name = "${var.env}-${var.project_name}-ecs-tg-2"
   }
 }
 
@@ -145,14 +145,14 @@ resource "aws_autoscaling_group" "ecs" {
     id      = aws_launch_template.ecs.id
     version = "$Latest"
   }
-  
+
   target_group_arns = [aws_lb_target_group.ecs_target_group_1.arn, aws_lb_target_group.ecs_target_group_2.arn]
 
   health_check_grace_period = 300
 
   tag {
     key                 = "Name"
-    value               = "${var.env}-ecs-asg"
+    value               = "${var.env}-${var.project_name}-ecs-asg"
     propagate_at_launch = true
   }
 }
@@ -171,15 +171,15 @@ resource "aws_lb_listener" "http_listener" {
 
 # Security Group for ECS Instances
 resource "aws_security_group" "ecs" {
-  name        = "${var.env}-ecs-sg"
+  name        = "${var.env}-${var.project_name}-ecs-sg"
   description = "Security group for ECS tasks and instances"
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    security_groups = [var.alb_security_group_id]  # ALB SG ID
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [var.alb_security_group_id] # ALB SG ID
   }
   egress {
     from_port   = 0
@@ -189,13 +189,13 @@ resource "aws_security_group" "ecs" {
   }
 
   tags = {
-    Name        = "${var.env}-ecs-sg"
+    Name        = "${var.env}-${var.project_name}-ecs-sg"
     Environment = var.env
   }
 }
 
 # CloudWatch Log Group for ECS Task
 resource "aws_cloudwatch_log_group" "ecs_task_logs" {
-  name              = "/ecs/${var.env}-ecs-task"
+  name              = "/ecs/${var.env}-${var.project_name}-ecs-task"
   retention_in_days = 14
 }

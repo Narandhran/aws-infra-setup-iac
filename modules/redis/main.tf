@@ -1,27 +1,27 @@
 resource "aws_elasticache_cluster" "redis" {
-  cluster_id           = "${var.env}-redis-cluster"
+  cluster_id           = "${var.env}-${var.project_name}-redis-cluster"
   engine               = "redis"
   engine_version       = "6.2"
-  node_type            = var.instance_class  # Example: "cache.t3.micro"
-  num_cache_nodes      = 1  # Single-node
+  node_type            = var.instance_class # Example: "cache.t3.micro"
+  num_cache_nodes      = 1                  # Single-node
   subnet_group_name    = aws_elasticache_subnet_group.redis.name
   security_group_ids   = [aws_security_group.redis.id]
-  parameter_group_name = "default.redis6.x"  # Adjust based on your Redis version
+  parameter_group_name = "default.redis6.x" # Adjust based on your Redis version
   port                 = 6379
 
   tags = {
-    Name        = "${var.env}-redis-cluster"
+    Name        = "${var.env}-${var.project_name}-redis-cluster"
     Environment = var.env
   }
 }
 
 
 resource "aws_elasticache_subnet_group" "redis" {
-  name       = "${var.env}-redis-subnet-group"
+  name       = "${var.env}-${var.project_name}-redis-subnet-group"
   subnet_ids = var.private_subnet_ids
 
   tags = {
-    Name        = "${var.env}-redis-subnet-group"
+    Name        = "${var.env}-${var.project_name}-redis-subnet-group"
     Environment = var.env
   }
 }
@@ -33,7 +33,7 @@ resource "aws_security_group" "redis" {
     from_port   = 6379
     to_port     = 6379
     protocol    = "tcp"
-    cidr_blocks = var.ecs_cidr_blocks  # Allow ECS to connect
+    cidr_blocks = var.ecs_cidr_blocks # Allow ECS to connect
   }
 
   egress {
@@ -44,7 +44,7 @@ resource "aws_security_group" "redis" {
   }
 
   tags = {
-    Name        = "${var.env}-redis-sg"
+    Name        = "${var.env}-${var.project_name}-redis-sg"
     Environment = var.env
   }
 }

@@ -1,30 +1,40 @@
-resource "aws_db_instance" "rds" {
-  identifier             = "${var.env}-rds-instance"
-  engine                 = "postgres"              # Use PostgreSQL engine
-  engine_version         = "16.5"                 # Optional: Specify the desired PostgreSQL version
-  instance_class         = var.instance_class
-  allocated_storage      = var.allocated_storage
-  db_name                = var.name            # Database name
-  username               = var.username        # Master username
-  password               = var.password        # Master password
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  db_subnet_group_name   = aws_db_subnet_group.rds.name # Subnet group for RDS
-  backup_retention_period = 7       # Keep 7 days of backups
-  maintenance_window       = "Mon:00:00-Mon:03:00"  # Maintenance time
-  auto_minor_version_upgrade = true
+data "aws_secretsmanager_secret_version" "rds_secret" {
+  secret_id = var.secret_postgres_cred # Replace with your secret name or ARN
+}
 
+# Parse the secret JSON and extract username/password
+locals {
+  db_credentials = jsondecode(data.aws_secretsmanager_secret_version.rds_secret.secret_string)
+}
+
+
+resource "aws_db_instance" "rds" {
+  identifier                 = "${var.env}-${var.project_name}-rds-instance"
+  engine                     = "postgres" # Use PostgreSQL engine
+  engine_version             = "16.5"     # Optional: Specify the desired PostgreSQL version
+  instance_class             = var.instance_class
+  allocated_storage          = var.allocated_storage
+  db_name                    = var.db_name                      # Database name
+  username                   = local.db_credentials["username"] # Master username
+  password                   = local.db_credentials["password"] # Master password
+  vpc_security_group_ids     = [aws_security_group.rds.id]
+  db_subnet_group_name       = aws_db_subnet_group.rds.name # Subnet group for RDS
+  backup_retention_period    = 7                            # Keep 7 days of backups
+  maintenance_window         = "Mon:00:00-Mon:03:00"        # Maintenance time
+  auto_minor_version_upgrade = true
+  skip_final_snapshot        = true
   tags = {
     Environment = var.env
-    Name        = "${var.env}-rds-instance"
+    Name        = "${var.env}-${var.project_name}-rds-instance"
   }
 }
 
 resource "aws_db_subnet_group" "rds" {
-  name       = "${var.env}-rds-subnet-group"
+  name       = "${var.env}-${var.project_name}-rds-subnet-group"
   subnet_ids = var.private_subnet_ids
 
   tags = {
-    Name        = "${var.env}-rds-subnet-group"
+    Name        = "${var.env}-${var.project_name}-rds-subnet-group"
     Environment = var.env
   }
 }
@@ -48,7 +58,7 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    Name = "${var.env}-rds-sg"
+    Name        = "${var.env}-${var.project_name}-rds-sg"
     Environment = var.env
   }
 }

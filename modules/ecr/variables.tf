@@ -8,3 +8,8 @@ variable "ecr_repository_name" {
   type        = string
   default     = null
 }
+
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}

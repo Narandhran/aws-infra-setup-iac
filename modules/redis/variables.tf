@@ -22,3 +22,8 @@ variable "instance_class" {
   description = "Instance class for Redis (e.g., cache.t3.micro)"
   type        = string
 }
+
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}

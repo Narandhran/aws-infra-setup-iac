@@ -35,12 +35,12 @@ variable "max_size" {
 
 variable "alb_security_group_id" {
   description = "ALB security group id"
-  type = string
+  type        = string
 }
 
 variable "load_balancer_arn" {
   description = "ARN for load balancer"
-  type = string
+  type        = string
 }
 
 variable "ecr_image_url" {
@@ -48,3 +48,7 @@ variable "ecr_image_url" {
   type        = string
 }
 
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}

@@ -1,5 +1,5 @@
 resource "aws_lb" "main" {
-  name               = "${var.env}-alb"
+  name               = "${var.env}-${var.project_name}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_security_group.id]
@@ -8,7 +8,7 @@ resource "aws_lb" "main" {
 
 # Security Group for ALB
 resource "aws_security_group" "alb_security_group" {
-  name        = "${var.env}-alb-sg"
+  name        = "${var.env}-${var.project_name}-alb-sg"
   description = "Security group for ALB in ${var.env} environment"
   vpc_id      = var.vpc_id
 
@@ -36,7 +36,7 @@ resource "aws_security_group" "alb_security_group" {
   }
 
   tags = {
-    Name        = "${var.env}-alb-sg"
+    Name        = "${var.env}-${var.project_name}-alb-sg"
     Environment = var.env
   }
 }

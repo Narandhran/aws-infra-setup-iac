@@ -54,7 +54,7 @@ variable "allocated_storage" {
   type        = number
 }
 
-variable "name" {
+variable "db_name" {
   description = "Name of the RDS database"
   type        = string
 }
@@ -66,4 +66,13 @@ variable "username" {
 
 variable "password" {
   description = "Master password for the RDS database"
+}
+
+variable "secret_postgres_cred" {
+  description = "Secret for postgres"
+}
+
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
 }

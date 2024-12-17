@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "ecr" {
-  name                 = "${var.env}-ecr-repo"
+  name = "${var.env}-${var.project_name}-ecr-repo"
   image_scanning_configuration {
     scan_on_push = true
   }
@@ -7,7 +7,7 @@ resource "aws_ecr_repository" "ecr" {
 
   tags = {
     Environment = var.env
-    Name        = "${var.env}-ecr-repo"
+    Name        = "${var.env}-${var.project_name}-ecr-repo"
   }
 }
 

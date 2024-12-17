@@ -1,5 +1,6 @@
 # region = "eu-west-1"
 env    = "dev"
+project_name = "b1os-v1"
 
 vpc_cidr           = "10.0.0.0/16"
 public_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -13,9 +14,10 @@ ecs_max_size  = 2
 
 instance_class    = "db.t3.micro" # db.m7g.large
 allocated_storage = 20
-name              = "devdb"
+db_name           = "devdb"
 username          = "dev_admin"
 password          = "dev_password123"
+secret_postgres_cred = "dev/b1osv1/postgres"
 
 # redis_node_type = "cache.t3.micro"
 # redis_num_nodes = 1
