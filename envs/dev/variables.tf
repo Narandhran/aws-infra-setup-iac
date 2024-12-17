@@ -76,3 +76,8 @@ variable "project_name" {
   description = "Name of the project"
   type        = string
 }
+
+variable "region" {
+  description = "aws region"
+  type        = string
+}

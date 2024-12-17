@@ -1,4 +1,4 @@
-# region = "eu-west-1"
+region = "eu-west-1"
 env    = "dev"
 project_name = "b1os-v1"
 
