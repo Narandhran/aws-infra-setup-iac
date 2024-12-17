@@ -41,11 +41,11 @@ pipeline {
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
                     dir("${currentWorkspace}/terraform/envs/dev") {
                         if (TF_ACTION == 'PLAN') {
-                            sh 'terraform plan -var-file=dev.tfvars -var="region=$(Region)" -out=dev-tfplan.tfplan'
+                            sh 'terraform plan -var-file=dev.tfvars -var="region=$Region" -out=dev-tfplan.tfplan'
                         } else if (TF_ACTION == 'APPLY') {
-                            sh 'terraform apply -var-file=dev.tfvars -var="region=$(Region)" -auto-approve'
+                            sh 'terraform apply -var-file=dev.tfvars -var="region=$Region" -auto-approve'
                         } else if (TF_ACTION == 'DESTROY') {
-                            sh 'terraform destroy -var-file=dev.tfvars -var="region=$(Region)" -auto-approve'
+                            sh 'terraform destroy -var-file=dev.tfvars -var="region=$Region" -auto-approve'
                         } else {
                             error "Invalid action: '${TF_ACTION}'"
                         }
