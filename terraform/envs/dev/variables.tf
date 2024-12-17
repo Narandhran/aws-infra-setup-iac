@@ -81,3 +81,8 @@ variable "region" {
   description = "aws region"
   type        = string
 }
+
+variable "redis_node_type" {
+  description = "redis node type"
+  type        = string
+}

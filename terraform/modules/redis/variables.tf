@@ -18,7 +18,7 @@ variable "env" {
   type        = string
 }
 
-variable "instance_class" {
+variable "node_type" {
   description = "Instance class for Redis (e.g., cache.t3.micro)"
   type        = string
 }
