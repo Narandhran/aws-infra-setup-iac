@@ -28,7 +28,7 @@ pipeline {
                     dir("${currentWorkspace}/terraform/envs/dev") {
                         echo '<========== Inside terraform ==========>'
                         // Assuming you have Terraform installed and configured
-                        sh 'terraform init -reconfigure'
+                        sh 'terraform init -reconfigure -backend-config="region=$Region" -backend-config="key=dev/$Region/terraform.tfstate"'
                         sh 'ls'
                         echo "Region is : $Region"
                         echo "Region with paranthesis is : ${Region}" 
