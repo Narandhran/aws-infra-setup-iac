@@ -14,7 +14,7 @@ pipeline {
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
                     dir("${currentWorkspace}/terraform/envs/prod") {
                         echo "<========== Downloading Terraform tfvars file ==========>"
-                        sh 'aws s3 cp s3://bckt-tf-state-b1os/prod/prod.auto.tfvars prod.auto.tfvars --profile ${AWS_PROFILE}'
+                        sh 'aws s3 cp s3://bckt-tf-state-b1os/prod/${Region}/prod.auto.tfvars prod.auto.tfvars --profile ${AWS_PROFILE}'
                     }
                 }
             }
@@ -28,7 +28,10 @@ pipeline {
                     dir("${currentWorkspace}/terraform/envs/prod") {
                         echo '<========== Inside terraform ==========>'
                         // Assuming you have Terraform installed and configured
-                        sh 'terraform init -reconfigure'
+                        sh 'terraform init -reconfigure -backend-config="region=$Region" -backend-config="key=prod/$Region/terraform.tfstate" -backend-config="bucket=bckt-tf-state-b1os"'
+                        sh 'ls'
+                        echo "Region is : $Region"
+                        echo "Region with paranthesis is : ${Region}" 
                     }
                 }
             }
@@ -41,11 +44,11 @@ pipeline {
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
                     dir("${currentWorkspace}/terraform/envs/prod") {
                         if (TF_ACTION == 'PLAN') {
-                            sh 'terraform plan -var-file=prod.auto.tfvars -out=prod-tfplan.tfplan'
+                            sh 'terraform plan -var-file=prod.auto.tfvars -var="region=$Region" -out=prod-tfplan.tfplan'
                         } else if (TF_ACTION == 'APPLY') {
-                            sh "terraform apply -var-file=prod.auto.tfvars -auto-approve"
+                            sh 'terraform apply -var-file=prod.auto.tfvars -var="region=$Region" -auto-approve'
                         } else if (TF_ACTION == 'DESTROY') {
-                            sh "terraform destroy -var-file=prod.auto.tfvars -auto-approve"
+                            sh 'terraform destroy -var-file=prod.auto.tfvars -var="region=$Region" -auto-approve'
                         } else {
                             error "Invalid action: '${TF_ACTION}'"
                         }
