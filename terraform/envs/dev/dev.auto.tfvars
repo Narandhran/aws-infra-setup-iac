@@ -20,4 +20,4 @@ password          = "asda8wewa9osadpnferuenvdadadad0acvflggjwe"
 secret_postgres_cred = "dev/b1osv1/postgres"
 
 redis_node_type = "cache.t3.micro"
-# redis_num_nodes = 1
+redis_num_nodes = 1
