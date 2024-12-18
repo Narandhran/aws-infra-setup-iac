@@ -74,7 +74,7 @@ resource "aws_launch_template" "ecs" {
     name = aws_iam_instance_profile.ecs_instance_profile.name
   }
 
-  user_data = base64encode(<<-EOT
+  user_data = base64encode(trimspace(<<-EOT
     #!/bin/bash
     echo "ECS_CLUSTER=${var.env}-${var.project_name}-ecs-cluster" > /etc/ecs/ecs.config
     echo "ECS_LOGLEVEL=info" >> /etc/ecs/ecs.config
@@ -85,7 +85,7 @@ resource "aws_launch_template" "ecs" {
     systemctl enable ecs
     systemctl start ecs
   EOT
-  )
+  ))
 
   tag_specifications {
     resource_type = "instance"
