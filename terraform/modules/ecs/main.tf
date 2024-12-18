@@ -76,7 +76,7 @@ resource "aws_launch_template" "ecs" {
 
   user_data = base64encode(<<-EOT
     #!/bin/bash
-    echo "ECS_CLUSTER=${var.env}-ecs-cluster" > /etc/ecs/ecs.config
+    echo "ECS_CLUSTER=${var.env}-${var.project_name}-ecs-cluster" > /etc/ecs/ecs.config
     echo "ECS_LOGLEVEL=info" >> /etc/ecs/ecs.config
     yum update -y
     yum install -y ecs-init docker

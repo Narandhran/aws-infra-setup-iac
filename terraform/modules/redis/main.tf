@@ -3,7 +3,7 @@ resource "aws_elasticache_cluster" "redis" {
   engine               = "redis"
   engine_version       = "6.2"
   node_type            = var.node_type # Example: "cache.t3.micro"
-  num_cache_nodes      = 1                  # Single-node
+  num_cache_nodes      = var.num_cache_nodes
   subnet_group_name    = aws_elasticache_subnet_group.redis.name
   security_group_ids   = [aws_security_group.redis.id]
   parameter_group_name = "default.redis6.x" # Adjust based on your Redis version

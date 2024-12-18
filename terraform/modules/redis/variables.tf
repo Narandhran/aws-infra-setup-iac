@@ -27,3 +27,8 @@ variable "project_name" {
   description = "Name of the project"
   type        = string
 }
+
+variable "num_cache_nodes" {
+  description = "Cache node for redis"
+  type        = string
+}

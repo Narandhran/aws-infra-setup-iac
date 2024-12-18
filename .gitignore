@@ -27,3 +27,4 @@ db/schema.rb
 .terraform.lock.hcl
 terraform.tfstate
 
+docs/
