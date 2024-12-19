@@ -52,6 +52,7 @@ module "rds" {
   private_subnet_ids   = module.vpc.private_subnet_ids
   ecs_cidr_blocks      = module.vpc.private_subnets_cidr
   secret_postgres_cred = var.secret_postgres_cred
+  multi_az             = var.multi_az
 }
 
 

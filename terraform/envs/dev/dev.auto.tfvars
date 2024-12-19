@@ -15,12 +15,13 @@ ecs_min_size  = 1
 ecs_max_size  = 2
 
 #RDS
-instance_class       = "db.t3.micro" # db.m7g.large
+instance_class       = "db.t3.micro"
 allocated_storage    = 20
 db_name              = "devdb"
 username             = "user_admin"
 password             = "asda8wewa9osadpnferuenvdadadad0acvflggjwe"
 secret_postgres_cred = "dev/b1osv1/postgres"
+multi_az             = false
 
 #Redis
 redis_node_type = "cache.t3.micro"

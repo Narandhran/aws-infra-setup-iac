@@ -20,6 +20,36 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
+## RDS and Redis access for ECS
+resource "aws_iam_policy" "ecs_rds_redis_policy" {
+  name = "${var.env}-ecs-rds-redis-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "rds:DescribeDBInstances",
+          "rds-db:connect"
+        ],
+        Resource = "*"
+      },
+      {
+        Effect   = "Allow",
+        Action   = "elasticache:DescribeCacheClusters",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "ecs_rds_redis_policy_attachment" {
+  name       = "${var.env}-ecs-rds-redis-policy-attachment"
+  roles      = [aws_iam_role.ecs_instance_role.name]
+  policy_arn = aws_iam_policy.ecs_rds_redis_policy.arn
+}
+
 # Add Policy for ECR Access
 resource "aws_iam_policy" "ecs_ecr_policy" {
   name        = "${var.env}-${var.project_name}-ecs-ecr-policy"
@@ -206,32 +236,4 @@ resource "aws_cloudwatch_log_group" "ecs_task_logs" {
 
 
 
-## RDS and Redis access for ECS
-resource "aws_iam_policy" "ecs_rds_redis_policy" {
-  name = "${var.env}-ecs-rds-redis-policy"
 
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "rds:DescribeDBInstances",
-          "rds-db:connect"
-        ],
-        Resource = "*"
-      },
-      {
-        Effect   = "Allow",
-        Action   = "elasticache:DescribeCacheClusters",
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_policy_attachment" "ecs_rds_redis_policy_attachment" {
-  name       = "${var.env}-ecs-rds-redis-policy-attachment"
-  roles      = [aws_iam_role.ecs_instance_role.name]
-  policy_arn = aws_iam_policy.ecs_rds_redis_policy.arn
-}

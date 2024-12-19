@@ -30,6 +30,9 @@ resource "aws_db_instance" "rds" {
     Environment = var.env
     Name        = "${var.env}-${var.project_name}-rds-instance"
   }
+
+  # Availability Zone Configuration
+  multi_az = var.multi_az # Enable or disable multi-AZ deployment
 }
 
 resource "aws_db_subnet_group" "rds" {

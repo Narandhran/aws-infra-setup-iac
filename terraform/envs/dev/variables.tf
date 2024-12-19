@@ -91,3 +91,8 @@ variable "redis_num_nodes" {
   description = "Redis node count"
   type        = string
 }
+
+variable "multi_az" {
+  description = "Enable multi-AZ deployment for RDS"
+  default     = false
+}
