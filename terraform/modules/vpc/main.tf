@@ -16,7 +16,7 @@ resource "aws_internet_gateway" "igw" {
 
 resource "aws_eip" "nat_eip" {
   tags = {
-    Name = "${var.env}-${var.project_name}-eip"
+    Name = "${var.env}-${var.project_name}-nat-eip"
   }
 }
 
@@ -29,7 +29,7 @@ resource "aws_nat_gateway" "natgw" {
 }
 
 resource "aws_subnet" "private" {
-  count                   = 2
+  count                   = (length(var.private_subnets) - 1)
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = element(var.private_subnets, count.index)
   availability_zone       = element(var.availability_zones, count.index)
@@ -40,13 +40,24 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_subnet" "public" {
-  count                   = 2
+  count                   = length(var.public_subnets)
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = element(var.public_subnets, count.index)
   availability_zone       = element(var.availability_zones, count.index)
   map_public_ip_on_launch = true
   tags = {
     Name = "${var.env}-${var.project_name}-public-subnet-${count.index}"
+  }
+}
+
+resource "aws_subnet" "private_db" {
+  count                   = 1
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.private_subnets[2]
+  availability_zone       = element(var.availability_zones, count.index)
+  map_public_ip_on_launch = false
+  tags = {
+    Name = "${var.env}-${var.project_name}-private-subnet-for-db"
   }
 }
 
