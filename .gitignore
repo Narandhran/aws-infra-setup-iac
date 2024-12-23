@@ -28,3 +28,5 @@ db/schema.rb
 terraform.tfstate
 
 docs/
+dev.auto.tfvars
+prod.auto.tfvars
