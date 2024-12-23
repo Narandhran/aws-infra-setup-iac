@@ -59,14 +59,14 @@ variable "db_name" {
   type        = string
 }
 
-variable "username" {
-  description = "Master username for the RDS database"
-  type        = string
-}
+# variable "username" {
+#   description = "Master username for the RDS database"
+#   type        = string
+# }
 
-variable "password" {
-  description = "Master password for the RDS database"
-}
+# variable "password" {
+#   description = "Master password for the RDS database"
+# }
 
 variable "secret_postgres_cred" {
   description = "Secret for postgres"
@@ -95,4 +95,16 @@ variable "redis_num_nodes" {
 variable "multi_az" {
   description = "Enable multi-AZ deployment for RDS"
   default     = false
+}
+
+
+variable "acm_certificate_arn" {
+  description = "ARN of SSL certificate"
+  type        = string
+  # default     = "arn:aws:acm:eu-west-1:084296958340:certificate/1b02b371-3b6e-4861-9a30-82a09183b9fd"
+}
+
+variable "ecr_image_url" {
+  description = "ECR image url"
+  type        = string
 }

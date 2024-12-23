@@ -34,7 +34,8 @@ module "ecs" {
   min_size              = var.ecs_min_size
   max_size              = var.ecs_max_size
   ##
-  ecr_image_url = "084296958340.dkr.ecr.eu-west-1.amazonaws.com/${var.env}-ecr-repo:latest" # Replace with your ECR image URI
+  ecr_image_url       = var.ecr_image_url # Replace with your ECR image URI
+  acm_certificate_arn = var.acm_certificate_arn
 }
 
 # Call RDS module
@@ -47,11 +48,10 @@ module "rds" {
   instance_class       = var.instance_class
   allocated_storage    = var.allocated_storage
   db_name              = var.db_name
-  username             = var.username
-  password             = var.password
   private_subnet_ids   = module.vpc.private_subnet_ids
   ecs_cidr_blocks      = module.vpc.private_subnets_cidr
   secret_postgres_cred = var.secret_postgres_cred
+  multi_az             = var.multi_az
 }
 
 
