@@ -28,15 +28,15 @@ variable "db_name" {
   type        = string
 }
 
-variable "username" {
-  description = "Master username for the RDS database"
-  type        = string
-}
+# variable "username" {
+#   description = "Master username for the RDS database"
+#   type        = string
+# }
 
-variable "password" {
-  description = "Master password for the RDS database"
-  type        = string
-}
+# variable "password" {
+#   description = "Master password for the RDS database"
+#   type        = string
+# }
 
 variable "ecs_cidr_blocks" {
   description = "Allowed CIDR blocks for RDS ingress"
