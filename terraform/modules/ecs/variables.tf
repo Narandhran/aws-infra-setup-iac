@@ -52,3 +52,15 @@ variable "project_name" {
   description = "Name of the project"
   type        = string
 }
+
+variable "region" {
+  description = "Region for the task"
+  type        = string
+  default     = "eu-west-1"
+}
+
+variable "acm_certificate_arn" {
+  description = "ARN of SSL certificate"
+  type        = string
+  # default     = "arn:aws:acm:eu-west-1:084296958340:certificate/1b02b371-3b6e-4861-9a30-82a09183b9fd"
+}

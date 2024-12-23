@@ -108,12 +108,6 @@ resource "aws_launch_template" "ecs" {
     #!/bin/bash
     echo "ECS_CLUSTER=${var.env}-${var.project_name}-ecs-cluster" > /etc/ecs/ecs.config
     echo "ECS_LOGLEVEL=info" >> /etc/ecs/ecs.config
-    yum update -y
-    yum install -y ecs-init docker
-    systemctl enable docker
-    systemctl start docker
-    systemctl enable ecs
-    systemctl start ecs
   EOT
   ))
 
@@ -191,15 +185,36 @@ resource "aws_autoscaling_group" "ecs" {
   }
 }
 
-# ALB Listeners
+# Http listener
 resource "aws_lb_listener" "http_listener" {
   load_balancer_arn = var.load_balancer_arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
+    type             = "redirect"
     target_group_arn = aws_lb_target_group.ecs_target_group_1.arn
+
+    redirect {
+      protocol    = "HTTPS"
+      port        = "443"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+
+# HTTPS Listener
+resource "aws_lb_listener" "https_listener" {
+  load_balancer_arn = var.load_balancer_arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.acm_certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ecs_target_group_2.arn
   }
 }
 
@@ -234,6 +249,86 @@ resource "aws_cloudwatch_log_group" "ecs_task_logs" {
   retention_in_days = 14
 }
 
+/*
+
+resource "aws_ecs_task_definition" "web" {
+  family                   = "${var.env}-${var.project_name}-task"
+  requires_compatibilities = ["EC2"]
+  network_mode             = "bridge"
+  cpu                      = 1024 # 0.25 vCPU
+  memory                   = 1024 # 512 MB memory
 
 
 
+  container_definitions = <<DEFINITION
+[
+  {
+    "name": "web-container",
+    "image": "084296958340.dkr.ecr.eu-west-1.amazonaws.com/dev-b1os:5a111eb396",
+    "cpu": 1024,
+    "memory": 1024,
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80,
+        "protocol": "tcp"
+      }
+    ],
+    "environment": [
+      {
+        "name": "ENVIRONMENT",
+        "value": "${var.env}"
+      },
+      {
+        "name": "PROJECT_NAME",
+        "value": "${var.project_name}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/${var.env}-${var.project_name}-ecs-task",
+        "awslogs-region": "${var.region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  }
+]
+DEFINITION
+}
+
+resource "aws_ecs_service" "web" {
+  name            = "${var.env}-${var.project_name}-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.web.arn
+  desired_count   = 4 # Number of tasks to run across AZs
+  launch_type     = "EC2"
+
+  # network_configuration {
+  #   subnets         = var.private_subnets # Use all private subnets
+  #   security_groups = [aws_security_group.ecs.id]
+  # }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs_target_group_1.arn
+    container_name   = "web-container"
+    container_port   = 80
+  }
+  wait_for_steady_state = true
+  
+  deployment_circuit_breaker {
+    enable = true
+    rollback = true
+  }
+
+  # ordered_placement_strategy {
+  #   type       = "memberOf"
+  #   expression = "attribute:ecs.availability-zone =~ .*"
+  # }
+
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 200
+}
+
+*/
