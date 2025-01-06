@@ -108,3 +108,10 @@ variable "ecr_image_url" {
   description = "ECR image url"
   type        = string
 }
+
+variable "AppType" {
+  type = string
+}
+variable "RailsEnv" {
+  type = string
+}

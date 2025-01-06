@@ -64,3 +64,11 @@ variable "acm_certificate_arn" {
   type        = string
   # default     = "arn:aws:acm:eu-west-1:084296958340:certificate/1b02b371-3b6e-4861-9a30-82a09183b9fd"
 }
+
+
+variable "AppType" {
+  type = string
+}
+variable "RailsEnv" {
+  type = string
+}

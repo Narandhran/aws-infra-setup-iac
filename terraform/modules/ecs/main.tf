@@ -121,19 +121,20 @@ resource "aws_launch_template" "ecs" {
 
 # ALB Target Groups
 resource "aws_lb_target_group" "ecs_target_group_1" {
-  name        = "${var.env}-${var.project_name}-ecs-tg-1"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "instance"
+  name                 = "${var.env}-${var.project_name}-ecs-tg-1"
+  target_type          = "instance"
+  port                 = 80
+  protocol             = "HTTP"
+  vpc_id               = var.vpc_id
+  deregistration_delay = "30"
 
   health_check {
-    path                = "/"
-    interval            = 30
-    timeout             = 5
+    matcher             = "200,301,404"
+    timeout             = 9
+    interval            = 10
     healthy_threshold   = 2
-    unhealthy_threshold = 2
-    matcher             = "200"
+    unhealthy_threshold = 3
+    path                = "/"
   }
 
   tags = {
@@ -214,7 +215,7 @@ resource "aws_lb_listener" "https_listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_target_group_2.arn
+    target_group_arn = aws_lb_target_group.ecs_target_group_1.arn
   }
 }
 
@@ -249,8 +250,6 @@ resource "aws_cloudwatch_log_group" "ecs_task_logs" {
   retention_in_days = 14
 }
 
-/*
-
 resource "aws_ecs_task_definition" "web" {
   family                   = "${var.env}-${var.project_name}-task"
   requires_compatibilities = ["EC2"]
@@ -260,50 +259,83 @@ resource "aws_ecs_task_definition" "web" {
 
 
 
-  container_definitions = <<DEFINITION
-[
-  {
-    "name": "web-container",
-    "image": "084296958340.dkr.ecr.eu-west-1.amazonaws.com/dev-b1os:5a111eb396",
-    "cpu": 1024,
-    "memory": 1024,
-    "essential": true,
-    "portMappings": [
-      {
-        "containerPort": 80,
-        "hostPort": 80,
-        "protocol": "tcp"
-      }
-    ],
-    "environment": [
-      {
-        "name": "ENVIRONMENT",
-        "value": "${var.env}"
-      },
-      {
-        "name": "PROJECT_NAME",
-        "value": "${var.project_name}"
-      }
-    ],
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "/ecs/${var.env}-${var.project_name}-ecs-task",
-        "awslogs-region": "${var.region}",
-        "awslogs-stream-prefix": "ecs"
+  container_definitions = jsonencode([
+    {
+      "name" : "b1os-v1-web-container",
+      "image" : "084296958340.dkr.ecr.eu-west-1.amazonaws.com/dev-b1os-v1-ecr-repo:eeb0a53487",
+      "cpu" : 1024,
+      "memory" : 1024,
+      "essential" : true,
+      "portMappings" : [
+        {
+          "containerPort" : 3000,
+          # "hostPort" : 80,
+          "protocol" : "tcp"
+        }
+      ],
+      "mountPoints" : [
+        {
+          "containerPath" : "/app/log",
+          "sourceVolume" : "app-logs-volume"
+        },
+        {
+          "containerPath" : "/app/nginx/logs",
+          "sourceVolume" : "nginx-logs-volume"
+        }
+      ],
+      "environment" : [
+        {
+          "name" : "ENVIRONMENT",
+          "value" : "${var.env}"
+        },
+        {
+          "name" : "PROJECT_NAME",
+          "value" : "${var.project_name}"
+        },
+        {
+          "name" : "APP_TYP",
+          "value" : "${var.AppType}"
+        },
+        {
+          "name" : "RAILS_ENV",
+          "value" : "${var.RailsEnv}"
+        },
+        {
+          "name" : "AWS_REGION",
+          "value" : "${var.region}"
+        }
+      ],
+
+      "logConfiguration" : {
+        "logDriver" : "awslogs",
+        "options" : {
+          "awslogs-group" : "/ecs/${var.env}-${var.project_name}-ecs-task",
+          "awslogs-region" : "${var.region}",
+          "awslogs-stream-prefix" : "ecs"
+        }
       }
     }
+  ])
+
+  volume {
+    name      = "app-logs-volume"
+    host_path = "/apps/b1os/logs"
   }
-]
-DEFINITION
+
+  volume {
+    name      = "nginx-logs-volume"
+    host_path = "/apps/b1os/nginx"
+  }
+
 }
 
 resource "aws_ecs_service" "web" {
-  name            = "${var.env}-${var.project_name}-service"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.web.arn
-  desired_count   = 4 # Number of tasks to run across AZs
-  launch_type     = "EC2"
+  name                    = "${var.env}-${var.project_name}-service"
+  cluster                 = aws_ecs_cluster.main.id
+  launch_type             = "EC2"
+  task_definition         = aws_ecs_task_definition.web.arn
+  enable_ecs_managed_tags = true
+  desired_count           = 4 # Number of tasks to run across AZs
 
   # network_configuration {
   #   subnets         = var.private_subnets # Use all private subnets
@@ -311,14 +343,13 @@ resource "aws_ecs_service" "web" {
   # }
 
   load_balancer {
+    container_name   = "b1os-v1-web-container"
     target_group_arn = aws_lb_target_group.ecs_target_group_1.arn
-    container_name   = "web-container"
-    container_port   = 80
+    container_port   = 3000
   }
-  wait_for_steady_state = true
-  
+
   deployment_circuit_breaker {
-    enable = true
+    enable   = true
     rollback = true
   }
 
@@ -329,6 +360,6 @@ resource "aws_ecs_service" "web" {
 
   deployment_minimum_healthy_percent = 50
   deployment_maximum_percent         = 200
+  wait_for_steady_state              = true
+  health_check_grace_period_seconds  = 300
 }
-
-*/
