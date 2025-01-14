@@ -36,6 +36,10 @@ module "ecs" {
   ##
   ecr_image_url       = var.ecr_image_url # Replace with your ECR image URI
   acm_certificate_arn = var.acm_certificate_arn
+
+  ##
+  RailsEnv = var.RailsEnv
+  AppType  = var.AppType
 }
 
 # Call RDS module
