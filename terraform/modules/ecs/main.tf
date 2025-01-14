@@ -204,7 +204,6 @@ resource "aws_lb_listener" "http_listener" {
   }
 }
 
-
 # HTTPS Listener
 resource "aws_lb_listener" "https_listener" {
   load_balancer_arn = var.load_balancer_arn
@@ -244,122 +243,42 @@ resource "aws_security_group" "ecs" {
   }
 }
 
-# CloudWatch Log Group for ECS Task
-resource "aws_cloudwatch_log_group" "ecs_task_logs" {
-  name              = "/ecs/${var.env}-${var.project_name}-ecs-task"
-  retention_in_days = 14
-}
-
-resource "aws_ecs_task_definition" "web" {
-  family                   = "${var.env}-${var.project_name}-task"
-  requires_compatibilities = ["EC2"]
-  network_mode             = "bridge"
-  cpu                      = 1024 # 0.25 vCPU
-  memory                   = 1024 # 512 MB memory
-
-
-
-  container_definitions = jsonencode([
-    {
-      "name" : "b1os-v1-web-container",
-      "image" : "084296958340.dkr.ecr.eu-west-1.amazonaws.com/dev-b1os-v1-ecr-repo:eeb0a53487",
-      "cpu" : 1024,
-      "memory" : 1024,
-      "essential" : true,
-      "portMappings" : [
-        {
-          "containerPort" : 3000,
-          # "hostPort" : 80,
-          "protocol" : "tcp"
-        }
-      ],
-      "mountPoints" : [
-        {
-          "containerPath" : "/app/log",
-          "sourceVolume" : "app-logs-volume"
-        },
-        {
-          "containerPath" : "/app/nginx/logs",
-          "sourceVolume" : "nginx-logs-volume"
-        }
-      ],
-      "environment" : [
-        {
-          "name" : "ENVIRONMENT",
-          "value" : "${var.env}"
-        },
-        {
-          "name" : "PROJECT_NAME",
-          "value" : "${var.project_name}"
-        },
-        {
-          "name" : "APP_TYP",
-          "value" : "${var.AppType}"
-        },
-        {
-          "name" : "RAILS_ENV",
-          "value" : "${var.RailsEnv}"
-        },
-        {
-          "name" : "AWS_REGION",
-          "value" : "${var.region}"
-        }
-      ],
-
-      "logConfiguration" : {
-        "logDriver" : "awslogs",
-        "options" : {
-          "awslogs-group" : "/ecs/${var.env}-${var.project_name}-ecs-task",
-          "awslogs-region" : "${var.region}",
-          "awslogs-stream-prefix" : "ecs"
-        }
-      }
+resource "aws_lb_listener_rule" "rules_in_lb_80" {
+  listener_arn = aws_lb_listener.http_listener.arn
+  action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
     }
-  ])
-
-  volume {
-    name      = "app-logs-volume"
-    host_path = "/apps/b1os/logs"
   }
 
-  volume {
-    name      = "nginx-logs-volume"
-    host_path = "/apps/b1os/nginx"
+  condition {
+    path_pattern {
+      values = ["/"]
+    }
   }
 
+  condition {
+    host_header {
+      # values = [var.b1osAlbHostHeader]
+      values = ["dev.b1os.life", "dev-b1os-v1-alb-1966114276.eu-west-1.elb.amazonaws.com"]
+    }
+  }
 }
 
-resource "aws_ecs_service" "web" {
-  name                    = "${var.env}-${var.project_name}-service"
-  cluster                 = aws_ecs_cluster.main.id
-  launch_type             = "EC2"
-  task_definition         = aws_ecs_task_definition.web.arn
-  enable_ecs_managed_tags = true
-  desired_count           = 4 # Number of tasks to run across AZs
-
-  # network_configuration {
-  #   subnets         = var.private_subnets # Use all private subnets
-  #   security_groups = [aws_security_group.ecs.id]
-  # }
-
-  load_balancer {
-    container_name   = "b1os-v1-web-container"
+resource "aws_lb_listener_rule" "rules_in_lb_443" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 6
+  action {
+    type             = "forward"
     target_group_arn = aws_lb_target_group.ecs_target_group_1.arn
-    container_port   = 3000
   }
 
-  deployment_circuit_breaker {
-    enable   = true
-    rollback = true
+  condition {
+    host_header {
+      values = ["dev.b1os.life", "dev-b1os-v1-alb-1966114276.eu-west-1.elb.amazonaws.com"]
+    }
   }
-
-  # ordered_placement_strategy {
-  #   type       = "memberOf"
-  #   expression = "attribute:ecs.availability-zone =~ .*"
-  # }
-
-  deployment_minimum_healthy_percent = 50
-  deployment_maximum_percent         = 200
-  wait_for_steady_state              = true
-  health_check_grace_period_seconds  = 300
 }
