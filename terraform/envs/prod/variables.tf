@@ -109,6 +109,11 @@ variable "ecr_image_url" {
   type        = string
 }
 
+variable "host_header" {
+  description = "dns header to allow"
+  type        = string
+}
+
 variable "AppType" {
   type = string
 }
