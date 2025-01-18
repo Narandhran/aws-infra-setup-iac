@@ -65,6 +65,10 @@ variable "acm_certificate_arn" {
   # default     = "arn:aws:acm:eu-west-1:084296958340:certificate/1b02b371-3b6e-4861-9a30-82a09183b9fd"
 }
 
+variable "host_headers" {
+  description = "headers to allow"
+  type        = list(string)
+}
 
 variable "AppType" {
   type = string
@@ -72,3 +76,4 @@ variable "AppType" {
 variable "RailsEnv" {
   type = string
 }
+

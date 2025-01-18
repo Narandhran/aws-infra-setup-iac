@@ -262,8 +262,8 @@ resource "aws_lb_listener_rule" "rules_in_lb_80" {
 
   condition {
     host_header {
-      # values = [var.b1osAlbHostHeader]
-      values = ["dev.b1os.life", "dev-b1os-v1-alb-1966114276.eu-west-1.elb.amazonaws.com"]
+      # values = ["dev.b1os.life", "dev-b1os-v1-alb-1966114276.eu-west-1.elb.amazonaws.com"]
+      values = var.host_headers
     }
   }
 }
@@ -278,7 +278,8 @@ resource "aws_lb_listener_rule" "rules_in_lb_443" {
 
   condition {
     host_header {
-      values = ["dev.b1os.life", "dev-b1os-v1-alb-1966114276.eu-west-1.elb.amazonaws.com"]
+      # values = ["dev.b1os.life", "dev-b1os-v1-alb-1966114276.eu-west-1.elb.amazonaws.com"]
+      values = var.host_headers
     }
   }
 }
