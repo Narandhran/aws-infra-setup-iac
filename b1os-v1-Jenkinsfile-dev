@@ -10,10 +10,10 @@ pipeline {
         stage('Init tf vars') {
             steps {
                 script {
-                    echo "<======== Terraform tfvars download =========>"
+                    echo '<======== Terraform tfvars download =========>'
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
                     dir("${currentWorkspace}/terraform/envs/dev") {
-                        echo "<========== Downloading Terraform tfvars file ==========>"
+                        echo '<========== Downloading Terraform tfvars file ==========>'
                         sh 'aws s3 cp s3://bckt-tf-state-b1os/dev/${Region}/dev.auto.tfvars dev.auto.tfvars --profile ${AWS_PROFILE}'
                     }
                 }
@@ -28,10 +28,10 @@ pipeline {
                     dir("${currentWorkspace}/terraform/envs/dev") {
                         echo '<========== Inside terraform ==========>'
                         // Assuming you have Terraform installed and configured
-                        sh 'terraform init -reconfigure -backend-config="region=$Region" -backend-config="key=dev/$Region/terraform.tfstate" -backend-config="bucket=bckt-tf-state-b1os"'
+                        sh 'terraform init -reconfigure -backend-config="region=eu-west-1" -backend-config="key=dev/$Region/terraform.tfstate" -backend-config="bucket=bckt-tf-state-b1os"'
                         sh 'ls'
                         echo "Region is : $Region"
-                        echo "Region with paranthesis is : ${Region}" 
+                        echo "Region with paranthesis is : ${Region}"
                     }
                 }
             }
@@ -40,7 +40,7 @@ pipeline {
         stage('Terraform Action') {
             steps {
                 script {
-                    echo "<========= Performing Terraform Action =======>"
+                    echo '<========= Performing Terraform Action =======>'
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
                     dir("${currentWorkspace}/terraform/envs/dev") {
                         if (TF_ACTION == 'PLAN') {
