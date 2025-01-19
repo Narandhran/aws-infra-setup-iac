@@ -22,7 +22,7 @@ resource "aws_iam_role" "ecs_instance_role" {
 
 ## RDS and Redis access for ECS
 resource "aws_iam_policy" "ecs_rds_redis_policy" {
-  name = "${var.env}-ecs-rds-redis-policy"
+  name = "${var.env}-${var.project_name}-ecs-rds-redis-policy"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -45,7 +45,7 @@ resource "aws_iam_policy" "ecs_rds_redis_policy" {
 }
 
 resource "aws_iam_policy_attachment" "ecs_rds_redis_policy_attachment" {
-  name       = "${var.env}-ecs-rds-redis-policy-attachment"
+  name       = "${var.env}-${var.project_name}-ecs-rds-redis-policy-attachment"
   roles      = [aws_iam_role.ecs_instance_role.name]
   policy_arn = aws_iam_policy.ecs_rds_redis_policy.arn
 }
@@ -165,6 +165,7 @@ resource "aws_lb_target_group" "ecs_target_group_2" {
 
 # Auto Scaling Group for ECS Instances
 resource "aws_autoscaling_group" "ecs" {
+  # name                = "${var.env}-${var.project_name}-ecs-asg"
   desired_capacity    = var.min_size
   min_size            = var.min_size
   max_size            = var.max_size
