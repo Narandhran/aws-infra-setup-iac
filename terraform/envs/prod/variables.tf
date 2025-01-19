@@ -68,8 +68,12 @@ variable "db_name" {
 #   description = "Master password for the RDS database"
 # }
 
-variable "secret_postgres_cred" {
+variable "rds_secret_name" {
   description = "Secret for postgres"
+}
+
+variable "redis_secret_name" {
+  description = "Secret for redis"
 }
 
 variable "project_name" {
