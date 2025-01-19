@@ -43,8 +43,8 @@ variable "ecs_cidr_blocks" {
   default     = ["10.0.0.0/16"] # Adjust based on your ECS cluster or application CIDR
 }
 
-variable "secret_postgres_cred" {
-  description = "Postgres credentials"
+variable "rds_secret_name" {
+  description = "Postgres secret name"
   type        = string
 }
 

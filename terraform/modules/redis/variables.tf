@@ -32,3 +32,7 @@ variable "num_cache_nodes" {
   description = "Cache node for redis"
   type        = string
 }
+
+variable "redis_secret_name" {
+  description = "Secret for redis"
+}

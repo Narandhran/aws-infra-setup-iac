@@ -46,16 +46,16 @@ module "ecs" {
 module "rds" {
   source = "../../modules/rds"
 
-  project_name         = var.project_name
-  env                  = var.env
-  vpc_id               = module.vpc.vpc_id
-  instance_class       = var.instance_class
-  allocated_storage    = var.allocated_storage
-  db_name              = var.db_name
-  private_subnet_ids   = module.vpc.private_subnet_ids
-  ecs_cidr_blocks      = module.vpc.private_subnets_cidr
-  secret_postgres_cred = var.secret_postgres_cred
-  multi_az             = var.multi_az
+  project_name       = var.project_name
+  env                = var.env
+  vpc_id             = module.vpc.vpc_id
+  instance_class     = var.instance_class
+  allocated_storage  = var.allocated_storage
+  db_name            = var.db_name
+  private_subnet_ids = module.vpc.private_subnet_ids
+  ecs_cidr_blocks    = module.vpc.private_subnets_cidr
+  rds_secret_name    = var.rds_secret_name
+  multi_az           = var.multi_az
 }
 
 
@@ -70,6 +70,7 @@ module "redis" {
   env                = var.env
   node_type          = var.redis_node_type
   num_cache_nodes    = var.redis_num_nodes
+  redis_secret_name  = var.redis_secret_name
 }
 
 

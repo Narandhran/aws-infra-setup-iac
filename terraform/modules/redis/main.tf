@@ -48,3 +48,20 @@ resource "aws_security_group" "redis" {
     Environment = var.env
   }
 }
+
+
+# Create the Secrets Manager secret
+resource "aws_secretsmanager_secret" "redis_secret" {
+  name        = var.redis_secret_name
+  description = "Credentials for the ${var.env}-${var.project_name} redis instance"
+}
+
+# Store Redis connection details in Secrets Manager
+resource "aws_secretsmanager_secret_version" "redis_secret_version" {
+  secret_id = aws_secretsmanager_secret.redis_secret.id
+  secret_string = jsonencode({
+    host = aws_elasticache_cluster.redis.cache_nodes[0].address # Retrieve the primary node's address
+    port = aws_elasticache_cluster.redis.port                   # Retrieve the Redis port
+    db   = 0                                                    # Default Redis DB
+  })
+}
