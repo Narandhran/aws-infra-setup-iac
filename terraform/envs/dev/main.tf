@@ -90,3 +90,15 @@ module "ecr" {
 #   bucket_name  = "${var.env}-${var.project_name}-app-bucket" # Provide the bucket name
 # }
 
+# Call Rabbitmq module
+module "rabbitmq" {
+  source              = "../../modules/rabbitmq"
+  env                 = var.env
+  deployment_mode     = var.deployment_mode
+  host_instance_type  = var.host_instance_type
+  mq_secret_name      = var.mq_secret_name
+  project_name        = var.project_name
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = module.vpc.public_subnet_ids
+  mq_single_subnet_id = module.vpc.single_public_subnet_id
+}
