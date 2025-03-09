@@ -35,6 +35,11 @@ resource "aws_mq_broker" "rabbitmq_broker" {
 
   publicly_accessible = true
 
+  configuration {
+    id       = aws_mq_configuration.rabbitmq_tls_config.id
+    revision = aws_mq_configuration.rabbitmq_tls_config.latest_revision
+  }
+
   #   security_groups = [aws_security_group.mq_sg.id]
   subnet_ids = var.deployment_mode == "SINGLE_INSTANCE" ? [var.mq_single_subnet_id] : var.subnet_ids
 
@@ -58,7 +63,28 @@ resource "aws_mq_broker" "rabbitmq_broker" {
     Environment = var.env
     Name        = "${var.env}-${var.project_name}-rabbitmq-instance"
   }
+
+  depends_on = [aws_mq_configuration.rabbitmq_tls_config]
 }
+
+resource "aws_mq_configuration" "rabbitmq_tls_config" {
+  name           = "${var.project_name}-${var.env}-mq-config"
+  engine_type    = "RabbitMQ"
+  engine_version = "3.12.13"
+
+  data = <<EOT
+auth_mechanisms.1 = "PLAIN"
+auth_mechanisms.2 = "AMQPLAIN"
+ssl_options.verify = "verify_none"
+ssl_options.fail_if_no_peer_cert = false
+EOT
+
+  tags = {
+    Environment = var.env
+    Name        = "${var.env}-${var.project_name}-rabbitmq-config"
+  }
+}
+
 
 # Create the Secrets Manager secret
 resource "aws_secretsmanager_secret" "mq_secret" {
