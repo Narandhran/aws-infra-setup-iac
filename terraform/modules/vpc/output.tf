@@ -26,3 +26,7 @@ output "private_subnets_cidr" {
 output "single_public_subnet_id" {
   value = aws_subnet.public[0].id
 }
+
+output "subnet_id_for_daemon_ec2" {
+  value = aws_subnet.private[0].id
+}

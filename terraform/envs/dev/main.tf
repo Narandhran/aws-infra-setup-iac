@@ -106,9 +106,11 @@ module "rabbitmq" {
 
 # Call Deamon module
 module "deamon" {
-  source       = "../../modules/deamon_ec2"
-  env          = var.env
-  project_name = var.project_name
-  rails_env    = var.RailsEnv
-  aws_region   = var.region
+  source                   = "../../modules/deamon_ec2"
+  env                      = var.env
+  project_name             = var.project_name
+  rails_env                = var.RailsEnv
+  aws_region               = var.region
+  vpc_id                   = module.vpc.vpc_id
+  subnet_id_for_daemon_ec2 = module.vpc.subnet_id_for_daemon_ec2
 }
