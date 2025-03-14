@@ -43,11 +43,6 @@ variable "load_balancer_arn" {
   type        = string
 }
 
-variable "ecr_image_url" {
-  description = "The URL of the ECR image to pull"
-  type        = string
-}
-
 variable "project_name" {
   description = "Name of the project"
   type        = string

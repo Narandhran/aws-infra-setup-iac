@@ -34,7 +34,6 @@ module "ecs" {
   min_size              = var.ecs_min_size
   max_size              = var.ecs_max_size
   ##
-  ecr_image_url       = var.ecr_image_url # Replace with your ECR image URI
   acm_certificate_arn = var.acm_certificate_arn
   host_headers        = [var.host_header, module.alb.alb_dns_name]
   ##

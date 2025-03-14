@@ -34,7 +34,6 @@ module "ecs" {
   min_size              = var.ecs_min_size
   max_size              = var.ecs_max_size
   ##
-  ecr_image_url       = var.ecr_image_url # Replace with your ECR image URI
   acm_certificate_arn = var.acm_certificate_arn
   host_headers        = [var.host_header, module.alb.alb_dns_name]
   ##
@@ -90,3 +89,27 @@ module "ecr" {
 #   bucket_name  = "${var.env}-${var.project_name}-app-bucket" # Provide the bucket name
 # }
 
+# Call Rabbitmq module
+module "rabbitmq" {
+  source              = "../../modules/rabbitmq"
+  env                 = var.env
+  deployment_mode     = var.deployment_mode
+  host_instance_type  = var.host_instance_type
+  mq_secret_name      = var.mq_secret_name
+  project_name        = var.project_name
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = module.vpc.public_subnet_ids
+  mq_single_subnet_id = module.vpc.single_public_subnet_id
+}
+
+
+# Call Deamon module
+module "deamon" {
+  source                   = "../../modules/deamon_ec2"
+  env                      = var.env
+  project_name             = var.project_name
+  rails_env                = var.RailsEnv
+  aws_region               = var.region
+  vpc_id                   = module.vpc.vpc_id
+  subnet_id_for_daemon_ec2 = module.vpc.subnet_id_for_daemon_ec2
+}

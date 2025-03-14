@@ -106,3 +106,13 @@ output "alb_security_group_id" {
 #   value       = module.secrets_manager.secret_arn
 #   description = "The ARN of the secret stored in Secrets Manager"
 # }
+
+# RabbitMQ
+output "rabbitmq_broker_url" {
+  value       = module.rabbitmq.rabbitmq_broker_url
+  description = "Rabbitmq broker url"
+}
+
+output "single_public_subnet_id" {
+  value = module.vpc.single_public_subnet_id
+}
