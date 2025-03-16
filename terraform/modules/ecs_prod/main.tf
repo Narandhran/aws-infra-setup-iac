@@ -167,7 +167,7 @@ resource "aws_launch_template" "ecs" {
 # ALB Target Groups
 resource "aws_lb_target_group" "ecs_target_group_1" {
   name                 = "${var.env}-${var.project_name}-ecs-tg-1"
-  target_type          = "instance"
+  target_type          = "ip"
   port                 = 80
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -192,7 +192,7 @@ resource "aws_lb_target_group" "ecs_target_group_2" {
   port        = 443
   protocol    = "HTTPS"
   vpc_id      = var.vpc_id
-  target_type = "instance"
+  target_type = "ip"
 
   health_check {
     path                = "/"
@@ -221,7 +221,7 @@ resource "aws_autoscaling_group" "ecs" {
     version = "$Latest"
   }
 
-  target_group_arns = [aws_lb_target_group.ecs_target_group_1.arn, aws_lb_target_group.ecs_target_group_2.arn]
+  # target_group_arns = [aws_lb_target_group.ecs_target_group_1.arn, aws_lb_target_group.ecs_target_group_2.arn]
 
   health_check_grace_period = 300
 
@@ -276,6 +276,14 @@ resource "aws_security_group" "ecs" {
     protocol        = "tcp"
     security_groups = [var.alb_security_group_id] # ALB SG ID
   }
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [var.alb_security_group_id] # ALB SG ID
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -329,4 +337,3 @@ resource "aws_lb_listener_rule" "rules_in_lb_443" {
     }
   }
 }
-

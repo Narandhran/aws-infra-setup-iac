@@ -21,7 +21,7 @@ module "alb" {
 
 # Call ECS module
 module "ecs" {
-  source = "../../modules/ecs"
+  source = "../../modules/ecs_prod"
 
   project_name          = var.project_name
   env                   = var.env
