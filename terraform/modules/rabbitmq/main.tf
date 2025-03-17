@@ -27,11 +27,12 @@ resource "aws_security_group" "mq_sg" {
 }
 
 resource "aws_mq_broker" "rabbitmq_broker" {
-  broker_name        = "${var.project_name}-${var.env}-mqbroker"
-  engine_type        = "RabbitMQ"
-  engine_version     = "3.12.13"              # Check for the latest supported version
-  host_instance_type = var.host_instance_type # For development environment
-  deployment_mode    = var.deployment_mode    # Use ACTIVE_STANDBY_MULTI_AZ for production
+  broker_name                = "${var.project_name}-${var.env}-mqbroker"
+  engine_type                = "RabbitMQ"
+  engine_version             = "3.13" # Check for the latest supported version
+  host_instance_type         = var.host_instance_type
+  deployment_mode            = var.deployment_mode # Use ACTIVE_STANDBY_MULTI_AZ for production
+  auto_minor_version_upgrade = true
 
   publicly_accessible = true
 
