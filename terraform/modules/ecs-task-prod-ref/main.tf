@@ -92,7 +92,7 @@ resource "aws_ecs_service" "web" {
   launch_type             = "EC2"
   task_definition         = aws_ecs_task_definition.web.arn
   enable_ecs_managed_tags = true
-  desired_count           = var.desire_ecs_task # Number of tasks to run across AZs
+  # desired_count           = var.desire_ecs_task # Number of tasks to run across AZs
 
   deployment_minimum_healthy_percent = 50
   deployment_maximum_percent         = 100
@@ -133,7 +133,7 @@ resource "aws_ecs_service" "web" {
 
 resource "aws_appautoscaling_target" "ecs_target" {
   max_capacity       = 4 * 2 # Max ECS tasks (2 per EC2)
-  min_capacity       = 2 * 2 # Min ECS tasks (2 per EC2)
+  min_capacity       = 1
   resource_id        = "service/${var.ClusterName}/${aws_ecs_service.web.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -147,7 +147,7 @@ resource "aws_appautoscaling_policy" "ecs_target_tracking" {
   service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value = 50.0 # AWS auto-scales up/down based on this value
+    target_value = 65.0 # AWS auto-scales up/down based on this value
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
