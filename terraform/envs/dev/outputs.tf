@@ -116,3 +116,12 @@ output "rabbitmq_broker_url" {
 output "single_public_subnet_id" {
   value = module.vpc.single_public_subnet_id
 }
+
+
+output "ecs_alert_arn" {
+  value = module.ecs.ecs_alert_arn
+}
+
+output "alb_target_group1_arn" {
+  value = module.ecs.alb_target_group_arn
+}

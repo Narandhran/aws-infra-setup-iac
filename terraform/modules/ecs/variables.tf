@@ -72,3 +72,10 @@ variable "RailsEnv" {
   type = string
 }
 
+variable "alert_email_addresses" {
+  type = list(string)
+  default = [
+    "mary@b1os.life",
+    "narandhran@b1os.life"
+  ]
+}

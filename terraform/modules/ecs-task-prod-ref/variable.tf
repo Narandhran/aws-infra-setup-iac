@@ -45,7 +45,7 @@ variable "B1osImage" {
 variable "desire_ecs_task" {
   type        = number
   description = "Desired ECS task count across AZ"
-  default     = 4
+  default     = 1
 }
 
 variable "ClusterName" {
