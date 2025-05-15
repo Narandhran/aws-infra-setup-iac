@@ -1,5 +1,16 @@
 resource "aws_ecs_cluster" "main" {
   name = "${var.env}-${var.project_name}-ecs-cluster"
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
+  depends_on = [aws_cloudwatch_log_group.ecs_container_insights]
+}
+
+resource "aws_cloudwatch_log_group" "ecs_container_insights" {
+  name              = "/aws/ecs/containerinsights/${var.env}-${var.project_name}-ecs-cluster/performance"
+  retention_in_days = 14
 }
 
 # IAM Role for ECS Instances
@@ -19,6 +30,7 @@ resource "aws_iam_role" "ecs_instance_role" {
     ]
   })
 }
+
 
 ## RDS and Redis access for ECS
 resource "aws_iam_policy" "ecs_rds_redis_policy" {
@@ -109,6 +121,16 @@ resource "aws_iam_policy_attachment" "ecs_ecr_readonly_policy_attachment" {
   }
 }
 
+resource "aws_iam_policy_attachment" "ecs_cloudwatch_agent_policy_attachment" {
+  name       = "${var.env}-${var.project_name}-ecs-cloudwatch-agent-attachment"
+  roles      = [aws_iam_role.ecs_instance_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+
+  lifecycle {
+    ignore_changes = [roles]
+  }
+}
+
 # Attach secret manager policy
 resource "aws_iam_policy_attachment" "ecs_secret_manager_policy_attachment" {
   name       = "${var.env}-b1os-v1-ecs-ecr-readonly-attachment"
@@ -151,8 +173,36 @@ resource "aws_launch_template" "ecs" {
 
   user_data = base64encode(trimspace(<<-EOT
     #!/bin/bash
+    
+    # Install CloudWatch Agent
+    yum install -y amazon-cloudwatch-agent
+
+    # Set up ECS to connect to the correct cluster
     echo "ECS_CLUSTER=${var.env}-${var.project_name}-ecs-cluster" > /etc/ecs/ecs.config
     echo "ECS_LOGLEVEL=info" >> /etc/ecs/ecs.config
+    
+    # Create CloudWatch Agent config for Memory metrics
+    mkdir -p /opt/aws/amazon-cloudwatch-agent/etc/
+
+    cat <<EOF > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    {
+      "metrics": {
+        "metrics_collected": {
+          "mem": {
+            "measurement": ["mem_used_percent"],
+            "metrics_collection_interval": 60
+          }
+        }
+      }
+    }
+    EOF
+
+    # Start the CloudWatch Agent
+    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+      -a fetch-config \
+      -m ec2 \
+      -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \
+      -s
   EOT
   ))
 
@@ -215,6 +265,18 @@ resource "aws_autoscaling_group" "ecs" {
   min_size            = var.min_size
   max_size            = var.max_size
   vpc_zone_identifier = var.private_subnets
+  enabled_metrics = [
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupPendingInstances",
+    "GroupTerminatingInstances",
+    "GroupStandbyInstances",
+    "GroupTotalInstances"
+  ]
+
+  metrics_granularity = "1Minute"
 
   launch_template {
     id      = aws_launch_template.ecs.id
@@ -337,3 +399,34 @@ resource "aws_lb_listener_rule" "rules_in_lb_443" {
     }
   }
 }
+
+resource "aws_sns_topic" "ecs_alerts" {
+  name = "${var.env}-${var.project_name}-ecs-alerts-topic"
+}
+
+resource "aws_sns_topic_subscription" "ecs_alerts_email" {
+  for_each = toset(var.alert_email_addresses)
+
+  topic_arn = aws_sns_topic.ecs_alerts.arn
+  protocol  = "email"
+  endpoint  = each.value
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_instance_unhealthy" {
+  alarm_name          = "${var.env}-${var.project_name}-ecs-instance-unhealthy"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "GroupInServiceInstances"
+  namespace           = "AWS/AutoScaling"
+  period              = 60
+  statistic           = "Average"
+  threshold           = var.min_size # Trigger if less than desired running
+  alarm_description   = "Alarm when the number of healthy instances is below minimum size."
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.ecs.name
+  }
+
+  alarm_actions = [aws_sns_topic.ecs_alerts.arn]
+  ok_actions    = [aws_sns_topic.ecs_alerts.arn]
+}
+

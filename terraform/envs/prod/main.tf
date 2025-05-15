@@ -82,6 +82,14 @@ module "ecr" {
   env          = var.env
 }
 
+# ECR for Daemon service
+module "ecr_daemon" {
+  source = "../../modules/ecr"
+
+  project_name = "${var.project_name}-daemon"
+  env          = var.env
+}
+
 # # Call S3 module
 # module "s3" {
 #   source       = "../../modules/s3"
@@ -100,16 +108,4 @@ module "rabbitmq" {
   vpc_id              = module.vpc.vpc_id
   subnet_ids          = module.vpc.public_subnet_ids
   mq_single_subnet_id = module.vpc.single_public_subnet_id
-}
-
-
-# Call Deamon module
-module "deamon" {
-  source                   = "../../modules/deamon_ec2"
-  env                      = var.env
-  project_name             = var.project_name
-  rails_env                = var.RailsEnv
-  aws_region               = var.region
-  vpc_id                   = module.vpc.vpc_id
-  subnet_id_for_daemon_ec2 = module.vpc.subnet_id_for_daemon_ec2
 }
