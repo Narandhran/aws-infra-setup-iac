@@ -10,10 +10,10 @@ pipeline {
         stage('Init tf vars') {
             steps {
                 script {
-                    echo "<======== Terraform tfvars download =========>"
+                    echo '<======== Terraform tfvars download =========>'
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/terraform/envs/prod") {
-                        echo "<========== Downloading Terraform tfvars file ==========>"
+                    dir('${currentWorkspace}/terraform/envs/prod') {
+                        echo '<========== Downloading Terraform tfvars file ==========>'
                         sh 'aws s3 cp s3://bckt-tf-state-b1os/prod/${Region}/prod.auto.tfvars prod.auto.tfvars --profile ${AWS_PROFILE}'
                     }
                 }
@@ -25,13 +25,13 @@ pipeline {
                 script {
                     echo '<======== Jenkins File execution started =========>'
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/terraform/envs/prod") {
+                    dir('${currentWorkspace}/terraform/envs/prod') {
                         echo '<========== Inside terraform ==========>'
                         // Assuming you have Terraform installed and configured
                         sh 'terraform init -reconfigure -backend-config="region=$Region" -backend-config="key=prod/$Region/terraform.tfstate" -backend-config="bucket=bckt-tf-state-b1os"'
                         sh 'ls'
                         echo "Region is : $Region"
-                        echo "Region with paranthesis is : ${Region}" 
+                        echo "Region with paranthesis is : ${Region}"
                     }
                 }
             }
@@ -40,9 +40,9 @@ pipeline {
         stage('Terraform Action') {
             steps {
                 script {
-                    echo "<========= Performing Terraform Action =======>"
+                    echo '<========= Performing Terraform Action =======>'
                     def currentWorkspace = sh(script: 'pwd', returnStdout: true).trim()
-                    dir("${currentWorkspace}/terraform/envs/prod") {
+                    dir('${currentWorkspace}/terraform/envs/prod') {
                         if (TF_ACTION == 'PLAN') {
                             sh 'terraform plan -var-file=prod.auto.tfvars -var="region=$Region" -out=prod-tfplan.tfplan'
                         } else if (TF_ACTION == 'APPLY') {
@@ -50,7 +50,7 @@ pipeline {
                         } else if (TF_ACTION == 'DESTROY') {
                             sh 'terraform destroy -var-file=prod.auto.tfvars -var="region=$Region" -auto-approve'
                         } else {
-                            error "Invalid action: '${TF_ACTION}'"
+                            error 'Invalid action: "${TF_ACTION}"'
                         }
                     }
                 }
